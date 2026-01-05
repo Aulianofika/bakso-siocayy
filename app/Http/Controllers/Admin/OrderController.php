@@ -4,155 +4,204 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Customer;
-use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
     /**
-     * 🧾 Tampilkan semua pesanan dengan filter dan pagination
+     * Menampilkan semua pesanan
      */
     public function index(Request $request)
     {
-        $query = Order::with(['customer', 'orderItems.product', 'shipments'])->latest();
+        $query = Order::with(['user', 'orderItems.product.category'])
+            ->latest();
 
         if ($request->filled('status_order')) {
             $query->where('status_order', $request->status_order);
         }
 
-        if ($request->filled('status_payment')) {
-            $query->where('status_payment', $request->status_payment);
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
         }
 
-        $orders = $query->paginate(10);
+        if ($request->filled('category_id')) {
+            $query->whereHas('orderItems.product', function ($q) use ($request) {
+                $q->where('category_id', $request->category_id);
+            });
+        }
 
-        return view('admin.orders.index', compact('orders'));
+        // Filter Tipe (Bakso / Kopi)
+        $type = $request->query('type', 'all');
+        if ($type !== 'all') {
+            $query->whereHas('orderItems.product.category', function ($q) use ($type) {
+                // Asumsi nama kategori mengandung kata 'bakso' atau 'kopi' (case insensitive biasanya di DB)
+                $q->where('name', 'like', '%' . $type . '%');
+            });
+        }
+
+        $orders = $query->paginate(12)->appends(['type' => $type]);
+        $categories = \App\Models\Category::all();
+
+        return view('admin.orders.index', compact('orders', 'categories'));
     }
 
     /**
-     * 🛍️ Form tambah pesanan
-     */
-    public function create()
-    {
-        $customers = Customer::select('id', 'nama_lengkap', 'email')->get();
-        $products = Product::select('id', 'name', 'price_sale')->get();
-
-        return view('admin.orders.create', compact('customers', 'products'));
-    }
-
-    /**
-     * 💾 Simpan pesanan baru
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'customer_id'    => 'required|exists:customers,id',
-            'products'       => 'required|array|min:1',
-            'products.*.id'  => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
-            'status_order'   => 'required|in:Pending,Diproses,Selesai',
-            'status_payment' => 'required|in:Belum Bayar,DP,Lunas',
-            'amount_paid'    => 'nullable|numeric',
-        ]);
-
-        // Hitung total harga berdasarkan produk yang dipilih
-        $total = 0;
-        foreach ($request->products as $item) {
-            $product = Product::findOrFail($item['id']);
-            $total += $product->price_sale * $item['quantity'];
-        }
-
-        // Simpan order utama
-        $order = Order::create([
-            'customer_id'    => $request->customer_id,
-            'total_price'    => $total,
-            'status_order'   => $request->status_order,
-            'status_payment' => $request->status_payment,
-            'amount_paid'    => $request->amount_paid ?? 0,
-        ]);
-
-        // Simpan item-item order
-        foreach ($request->products as $item) {
-            $product = Product::findOrFail($item['id']);
-            $order->orderItems()->create([
-                'product_id' => $product->id,
-                'quantity'   => $item['quantity'],
-                'price'      => $product->price_sale,
-            ]);
-        }
-
-        return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Pesanan berhasil dibuat.');
-    }
-
-    /**
-     * 🔍 Detail pesanan
+     * 📄 Detail pesanan
      */
     public function show(Order $order)
     {
-        $order->load(['customer', 'orderItems.product', 'shipments']);
+        $order->load(['user', 'orderItems.product']);
         return view('admin.orders.show', compact('order'));
     }
 
     /**
-     * ✏️ Form edit pesanan
+     *  Update STATUS PEMBAYARAN (Belum Bayar / DP / Lunas)
      */
-    public function edit(Order $order)
-    {
-        $customers = Customer::select('id', 'nama_lengkap', 'email')->get();
-        return view('admin.orders.edit', compact('order', 'customers'));
-    }
-
-    /**
-     * 🔄 Update data pesanan
-     */
-    public function update(Request $request, Order $order)
+    public function updatePayment(Request $request, Order $order)
     {
         $request->validate([
-            'status_order'   => 'required|in:Pending,Diproses,Selesai',
             'status_payment' => 'required|in:Belum Bayar,DP,Lunas',
-            'amount_paid'    => 'nullable|numeric',
+            'amount_paid' => 'nullable|numeric|min:0'
         ]);
 
-        $order->update($request->only([
-            'status_order',
-            'status_payment',
-            'amount_paid',
-        ]));
+        // Hitung amount_paid otomatis
+        if ($request->status_payment === 'Lunas') {
+            $amountPaid = $order->total_price;
+        } elseif ($request->status_payment === 'DP') {
+            $amountPaid = $request->amount_paid ?? 0;
+        } else {
+            $amountPaid = 0;
+        }
 
-        return redirect()->route('admin.orders.show', $order->id)
-            ->with('success', 'Pesanan berhasil diperbarui.');
+        $order->update([
+            'status_payment' => $request->status_payment,
+            'amount_paid' => $amountPaid,
+        ]);
+
+        return back()->with('success', 'Status pembayaran berhasil diperbarui!');
     }
 
     /**
-     * ⚙️ Update status pesanan langsung (shortcut)
+     *  Update status pesanan
      */
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
-            'status_order'   => 'required|in:Pending,Diproses,Selesai',
-            'status_payment' => 'required|in:Belum Bayar,DP,Lunas',
-            'amount_paid'    => 'nullable|numeric',
+            'status_order' => 'required|in:Pending,Diproses,Siap Dikirim,Selesai,Ditolak',
         ]);
 
-        $order->update([
-            'status_order'   => $request->status_order,
-            'status_payment' => $request->status_payment,
-            'amount_paid'    => $request->amount_paid ?? $order->amount_paid,
-        ]);
+        // --- VALIDASI ALUR MAJU (FORWARD ONLY) ---
+        // Kita beri bobot/rank untuk setiap status
+        $statusRank = [
+            'Pending' => 1,
+            'Diproses' => 2,
+            'Siap Dikirim' => 3,
+            'Selesai' => 4,
+            'Ditolak' => 5 // Bisa dianggap terminal state
+        ];
 
-        return redirect()->route('admin.orders.index')
-            ->with('success', 'Status pesanan berhasil diperbarui.');
+        $currentRank = $statusRank[$order->status_order] ?? 0;
+        $newRank = $statusRank[$request->status_order] ?? 0;
+
+        // Aturan: Tidak boleh mundur (New Rank < Current Rank)
+        // Kecuali jika status sekarang sudah Ditolak/Selesai mungkin tidak bisa diubah lagi?
+        // Tapi request user spesifik: "tidak bisa dikembalikan lagi ke pending pokonya ga bisa mundur"
+        // Jadi kita kunci jika $newRank < $currentRank
+
+        // Pengecualian: Admin mungkin salah klik 'Ditolak' dan ingin mengembalikan ke proses? 
+        // User bilang "ga bisa mundur", jadi kita strict saja. 
+
+        if ($newRank < $currentRank) {
+            return back()->with('error', "Status tidak dapat dikembalikan mundur! ({$order->status_order} -> {$request->status_order})");
+        }
+
+        // --- END VALIDASI ALUR ---
+
+        //pembayaran 
+        if (
+            in_array($request->status_order, ['Diproses', 'Siap Dikirim', 'Selesai']) &&
+            $order->status_payment !== 'Lunas'
+        ) {
+            return back()->with('error', 'Pesanan belum lunas!');
+        }
+
+        // kurangi stok
+        if (
+            $request->status_order === 'Diproses' &&
+            !$order->stock_reduced
+        ) {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+
+                if ($product->stock < $item->quantity) {
+                    return back()->with(
+                        'error',
+                        "Stok {$product->name} tidak mencukupi!"
+                    );
+                }
+
+                $product->decrement('stock', $item->quantity);
+            }
+
+            $order->update([
+                'stock_reduced' => true,
+                'processed_at' => now(),
+            ]);
+        }
+
+        //update status order
+        $order->status_order = $request->status_order;
+        $order->save();
+
+        return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }
 
+
     /**
-     * 🗑️ Hapus pesanan
+     *  Hapus pesanan
      */
     public function destroy(Order $order)
     {
+        $order->orderItems()->delete();
+
+        if ($order->bukti_transfer) {
+            Storage::disk('public')->delete($order->bukti_transfer);
+        }
+
         $order->delete();
-        return redirect()->route('admin.orders.index')
-            ->with('success', 'Pesanan berhasil dihapus.');
+
+        return back()->with('success', 'Pesanan berhasil dihapus.');
     }
+
+    public function readyToShip(Order $order)
+    {
+        if ($order->status_payment !== 'Lunas') {
+            return back()->with('error', 'Pesanan belum lunas');
+        }
+
+        if ($order->status_order !== 'Diproses') {
+            return back()->with('error', 'Pesanan belum diproses');
+        }
+
+        if (!$order->shipments()->exists()) {
+            // Buat shipment dengan data dari order
+            $order->shipments()->create([
+                'destination' => $order->alamat_lengkap ?? 'Alamat tidak tersedia',
+                'shipment_date' => now()->toDateString(),
+                'courier' => 'Belum ditentukan',
+                'status' => 'Menunggu',
+            ]);
+        }
+
+        $order->update([
+            'status_order' => 'Siap Dikirim',
+        ]);
+
+        return back()->with('success', 'Pesanan siap dikirim');
+    }
+
+
+
+
 }

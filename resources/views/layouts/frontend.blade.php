@@ -65,16 +65,169 @@
       color: #fff !important;
     }
 
-    .btn-logout {
+    .btn-logout, .btn-login {
       background-color: #fff;
       color: #3ca65a;
       font-weight: 500;
       border-radius: 8px;
       transition: 0.3s;
+      border: none;
+      padding: 6px 12px;
     }
-    .btn-logout:hover {
+    .btn-logout:hover, .btn-login:hover {
       background-color: #e9f6ec;
       color: #2f7a52;
+    }
+    .person-icon-btn {
+      background: transparent;
+      border: none;
+      color: #e9f6ec !important;
+      font-size: 1.3rem;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .person-icon-btn:hover {
+      color: #fff !important;
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+    
+    /* Sidebar Kanan */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1040;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .user-sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100%;
+      background: linear-gradient(180deg, #ffffff, #f4fcf6);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      z-index: 1041;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .user-sidebar.active {
+      right: 0;
+    }
+    .user-sidebar-header {
+      background: linear-gradient(135deg, #3ca65a, #2f7a52);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-sidebar-header h5 {
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-close-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .sidebar-close-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: rotate(90deg);
+    }
+    .user-sidebar-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .sidebar-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    .sidebar-menu-item:hover {
+      background: linear-gradient(135deg, rgba(60,166,90,0.1), rgba(47,122,82,0.05));
+      color: #2f7a52;
+      transform: translateX(5px);
+    }
+    .sidebar-menu-item i {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+    .sidebar-menu-item.logout-item {
+      color: #dc3545;
+    }
+    .sidebar-menu-item.logout-item:hover {
+      background: linear-gradient(135deg, rgba(220,53,69,0.1), rgba(220,53,69,0.05));
+      color: #dc3545;
+    }
+    .sidebar-menu-item button {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 0;
+      font-weight: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+    
+    /* Responsive Sidebar */
+    @media (max-width: 576px) {
+      .user-sidebar {
+        width: 280px;
+      }
+    }
+    .cart-icon-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #ff4444;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
     }
 
     /* Hero Section */
@@ -151,6 +304,63 @@
         padding: 30px 15px;
       }
     }
+    .card-custom {
+    border-radius: 14px;
+    transition: 0.25s ease;
+  }
+
+  .card-img-top {
+    height: 220px;
+    object-fit: cover;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .btn-green {
+    background: linear-gradient(135deg, #3ca65a, #2f7a52);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* ===============================
+     MOBILE MINIMAL
+  ================================ */
+  @media (max-width: 576px) {
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    .card-img-top {
+      height: 120px;
+    }
+
+    .card-body {
+      padding: 10px;
+    }
+
+    .product-name {
+      font-size: 0.85rem;
+      line-height: 1.2;
+    }
+
+    .product-price {
+      font-size: 0.8rem;
+    }
+
+    .btn-green {
+      font-size: 0.75rem;
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    /* Matikan hover di mobile */
+    .card-custom:hover {
+      transform: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+  }
 
     @media (max-width: 576px) {
       .navbar-brand {
@@ -183,7 +393,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
     <div class="container">
       <a class="navbar-brand" href="{{ url('/home') }}">
-        <i class="bi bi-cup-hot-fill me-1"></i> Bakso Siocay
+        <i class="bi bi-cup-hot-fill me-1"></i> Siocay
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -192,13 +402,32 @@
         <ul class="navbar-nav ms-auto align-items-center">
           <li class="nav-item"><a href="{{ url('/home') }}" class="nav-link">Beranda</a></li>
           <li class="nav-item"><a href="{{ url('/menu') }}" class="nav-link">Produk</a></li>
-          <li class="nav-item"><a href="{{ url('/pesanan-saya') }}" class="nav-link">Pesanan Saya</a></li>
-          <li class="nav-item">
-            <form method="POST" action="{{ route('logout') }}" class="d-inline">
-              @csrf
-              <button class="btn btn-sm btn-logout ms-2">Logout</button>
-            </form>
-          </li>
+          
+          @auth
+            {{-- Icon Keranjang dengan Badge --}}
+            <li class="nav-item">
+              <a href="{{ route('cart.index') }}" class="nav-link position-relative">
+                <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
+                @if(isset($cartCount) && $cartCount > 0)
+                  <span class="cart-badge">{{ $cartCount }}</span>
+                @endif
+              </a>
+            </li>
+            
+            {{-- Icon Person untuk membuka Sidebar --}}
+            <li class="nav-item">
+              <button class="person-icon-btn nav-link" type="button" id="openSidebarBtn" title="Menu Pengguna">
+                <i class="bi bi-person-fill"></i>
+              </button>
+            </li>
+          @else
+            {{-- Login dengan Icon Person --}}
+            <li class="nav-item">
+              <a href="{{ route('login') }}" class="person-icon-btn nav-link" title="Login">
+                <i class="bi bi-person-fill"></i>
+              </a>
+            </li>
+          @endauth
         </ul>
       </div>
     </div>
@@ -211,9 +440,74 @@
 
   {{-- Footer --}}
   <footer>
-    &copy; {{ date('Y') }} Bakso Siocay — Hangat, Lezat, dan Dekat denganmu 💚
+    &copy; {{ date('Y') }} Siocay — Hangat, Lezat, dan Dekat denganmu 💚
   </footer>
 
+  @auth
+  {{-- Sidebar Overlay --}}
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  
+  {{-- User Sidebar Kanan --}}
+  <div class="user-sidebar" id="userSidebar">
+    <div class="user-sidebar-header">
+      <h5>
+        <i class="bi bi-person-fill"></i>
+        Menu Pengguna
+      </h5>
+      <button class="sidebar-close-btn" id="closeSidebarBtn" type="button">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="user-sidebar-body">
+      <a href="{{ route('frontend.riwayat') }}" class="sidebar-menu-item">
+        <i class="bi bi-receipt"></i>
+        <span>Riwayat Pesanan Saya</span>
+      </a>
+      
+      <form method="POST" action="{{ route('logout') }}" class="d-inline">
+        @csrf
+        <button type="submit" class="sidebar-menu-item logout-item">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  @endauth
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  @auth
+  <script>
+    // Sidebar Toggle Script
+    const openSidebarBtn = document.getElementById('openSidebarBtn');
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const userSidebar = document.getElementById('userSidebar');
+    
+    function openSidebar() {
+      sidebarOverlay.classList.add('active');
+      userSidebar.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent body scroll
+    }
+    
+    function closeSidebar() {
+      sidebarOverlay.classList.remove('active');
+      userSidebar.classList.remove('active');
+      document.body.style.overflow = ''; // Restore body scroll
+    }
+    
+    openSidebarBtn.addEventListener('click', openSidebar);
+    closeSidebarBtn.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    
+    // Close sidebar on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && userSidebar.classList.contains('active')) {
+        closeSidebar();
+      }
+    });
+  </script>
+  @endauth
 </body>
 </html>

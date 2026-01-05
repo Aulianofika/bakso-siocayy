@@ -13,7 +13,10 @@ class Shipment extends Model
         'order_id',
         'destination',
         'shipment_date',
-        'courier'
+        'courier',
+        'status',
+        'dikirim_at',
+        'diterima_at',
     ];
 
     // Relasi ke Order

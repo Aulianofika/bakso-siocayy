@@ -23,6 +23,7 @@ class User extends Authenticatable
     ];
 
     // (Opsional) jika mau pastikan setiap kali set password, otomatis di-hash
+    // (Opsional) jika mau pastikan setiap kali set password, otomatis di-hash
     public function setPasswordAttribute($value)
     {
         if (Hash::needsRehash($value)) {
@@ -30,5 +31,10 @@ class User extends Authenticatable
         } else {
             $this->attributes['password'] = $value;
         }
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

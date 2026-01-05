@@ -37,6 +37,11 @@ class AuthController extends Controller
             }
 
             if ($user->role === 'user') {
+                // Jika ada parameter redirect, gunakan itu
+                $redirect = $request->input('redirect');
+                if ($redirect) {
+                    return redirect($redirect)->with('success', 'Login berhasil!');
+                }
                 return redirect()->intended('/home')->with('success', 'Login berhasil!');
             }
         }

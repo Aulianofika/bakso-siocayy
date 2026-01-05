@@ -4,6 +4,9 @@
 @section('content')
 <form method="POST" action="{{ route('login') }}">
   @csrf
+  @if(request()->has('redirect'))
+    <input type="hidden" name="redirect" value="{{ request('redirect') }}">
+  @endif
   @if(session('success'))
     <div class="alert alert-success small mt-2 fade show text-start" id="alertMessage">
       <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}

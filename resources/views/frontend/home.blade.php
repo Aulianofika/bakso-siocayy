@@ -5,11 +5,11 @@
 @section('content')
 
 {{-- HERO SECTION --}}
-<section class="hero my-5 p-5 shadow-sm rounded-4 bg-light position-relative overflow-hidden">
-  <div class="row align-items-center">
-    <div class="col-md-6 text-start">
-      <h1 class="fw-bold text-success mb-3">
-        Hangat & Lezat dari Dapur <span class="text-dark">Bakso Siocay</span> 
+<section class="hero my-3 my-md-5 p-4 p-md-5 shadow-sm rounded-4 bg-light position-relative overflow-hidden">
+  <div class="row align-items-center g-4">
+    <div class="col-12 col-md-6 text-center text-md-start">
+      <h1 class="fw-bold text-success mb-3" style="font-size: clamp(1.5rem, 4vw, 2.5rem);">
+        Hangat & Lezat dari Dapur <span class="text-dark"> Siocay</span> 
       </h1>
       <p class="text-muted mb-4">
         Nikmati bakso daging & ayam pilihan serta kopi khas Siocay yang siap menemani harimu.  
@@ -19,8 +19,8 @@
         <i class="bi bi-basket2-fill me-1"></i> Lihat Menu
       </a>
     </div>
-    <div class="col-md-6 text-center">
-      <img src="{{ asset('images/logo.jpg') }}" alt="Bakso Siocay" class="img-fluid rounded-4 shadow-sm animate-float" style="max-width: 420px;">
+    <div class="col-12 col-md-6 text-center">
+      <img src="{{ asset('images/logo.jpg') }}" alt="Bakso Siocay" class="img-fluid rounded-4 shadow-sm animate-float" style="max-width: 100%; height: auto;">
     </div>
   </div>
 </section>
@@ -32,20 +32,20 @@
     <p class="text-muted">Lezatnya tiada dua — racikan khas dari Bakso Siocay 💚</p>
   </div>
 
-  <div class="row justify-content-center">
+  <div class="row justify-content-center g-3 g-md-4">
     @forelse($products as $product)
-      <div class="col-md-4 mb-4">
+      <div class="col-6 col-md-4 col-lg-3">
         <div class="card border-0 shadow-sm h-100 hover-scale">
           <img src="{{ asset('images/products/'.$product->image) }}" 
                class="card-img-top" 
                alt="{{ $product->name }}" 
-               style="height:240px; object-fit:cover;">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">{{ $product->name }}</h5>
-            <p class="text-success fw-semibold mb-1">Rp {{ number_format($product->price_sale, 0, ',', '.') }}</p>
-            <p class="text-muted small">{{ Str::limit($product->description, 90) }}</p>
-            <a href="{{ url('/' . $product->slug) }}" class="btn btn-green btn-sm mt-2">
-              <i class="bi bi-bag-check-fill me-1"></i> Pesan Sekarang
+               style="height: 180px; object-fit: cover;">
+          <div class="card-body text-center d-flex flex-column">
+            <h6 class="card-title fw-bold mb-2" style="font-size: 0.95rem;">{{ $product->name }}</h6>
+            <p class="text-success fw-semibold mb-2">Rp {{ number_format($product->price_sale, 0, ',', '.') }}</p>
+            <p class="text-muted small d-none d-md-block flex-grow-1">{{ Str::limit($product->description, 70) }}</p>
+            <a href="{{ route('produk.show', $product->id) }}" class="btn btn-green btn-sm mt-auto">
+              <i class="bi bi-bag-check-fill me-1"></i> Pesan
             </a>
           </div>
         </div>
@@ -99,12 +99,19 @@
     <p class="text-muted">Kunjungi warung kami dan rasakan kehangatannya langsung!</p>
   </div>
   <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="ratio ratio-16x9 rounded-3 shadow-sm">
+    <div class="col-12 col-md-10 col-lg-8">
+      <div class="ratio ratio-16x9 rounded-3 shadow-sm overflow-hidden">
+        {{-- Ganti URL di bawah ini dengan URL embed dari Google Maps --}}
+        {{-- Cara: Buka Google Maps > Cari lokasi > Klik Share > Pilih "Embed a map" > Copy URL --}}
         <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!..." 
-          width="600" height="450" style="border:0;" 
-          allowfullscreen="" loading="lazy">
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322298!2d106.8191598143154!3d-6.194449195508445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5396b5e8f1f%3A0x3a5d2f5e5a5a5a5a!2sJakarta!5e0!3m2!1sid!2sid!4v1234567890123!5m2!1sid!2sid" 
+          width="100%" 
+          height="100%" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy" 
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Lokasi Bakso Siocay">
         </iframe>
       </div>
     </div>
