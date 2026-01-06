@@ -3,176 +3,235 @@
 
 @section('content')
 <div class="container py-4">
-  <h3 class="fw-bold text-success mb-4">
-    <i class="bi bi-credit-card me-2"></i> Konfirmasi Pesanan
-  </h3>
-
-  @if($cartItems->isEmpty())
-    <div class="alert alert-warning text-center shadow-sm p-4 rounded-4 bg-white border-0">
-      <i class="bi bi-cart-x fs-2 d-block text-muted mb-2"></i>
-      Keranjang kamu masih kosong 😢<br>
-      Yuk, <a href="{{ route('menu') }}" class="text-success fw-semibold text-decoration-none">
-        pilih produk
-      </a> dulu 💚
+    {{-- Header --}}
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary rounded-circle me-3 shadow-sm" style="width: 40px; height: 40px; display: grid; place-items: center;">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h3 class="fw-bold text-success mb-0">Checkout</h3>
     </div>
-  @else
-    <div class="card p-4 border-0 shadow-sm rounded-4 bg-white">
-      <!-- RINGKASAN PESANAN -->
-      <h5 class="fw-bold mb-4 text-success">
-        <i class="bi bi-receipt-cutoff me-2"></i> Ringkasan Pesanan
-      </h5>
 
-      <div class="table-responsive mb-3">
-        <table class="table table-borderless align-middle">
-          <thead class="border-bottom d-none d-md-table-header-group">
-            <tr class="text-muted text-center">
-              <th class="text-start">Produk</th>
-              <th>Jumlah</th>
-              <th class="text-end">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
+    @if($cartItems->isEmpty())
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="bi bi-bag-x text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h4 class="fw-bold text-muted">Keranjang Kosong</h4>
+            <a href="{{ route('menu') }}" class="btn btn-success rounded-pill mt-3">Belanja Sekarang</a>
+        </div>
+    @else
+        <form action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            
+            {{-- Hidden Selected Items --}}
             @foreach($cartItems as $item)
-              <tr>
-                <td class="text-start">
-                  <div class="d-flex align-items-center">
-                    <img src="{{ asset('images/products/'.$item->product->image) }}" 
-                         alt="{{ $item->product->name }}" 
-                         class="rounded me-2 me-md-3 shadow-sm" 
-                         style="width: 50px; height: 50px; object-fit: cover;">
-                    <div class="flex-grow-1">
-                      <strong class="d-block">{{ $item->product->name }}</strong>
-                      <small class="text-muted d-block d-md-inline">
-                        Rp {{ number_format($item->product->price_sale, 0, ',', '.') }}
-                      </small>
-                      <div class="d-md-none mt-1">
-                        <small class="text-muted">Jumlah: </small>
-                        <span class="fw-semibold">{{ $item->quantity }}</span>
-                        <small class="text-muted ms-2">Subtotal: </small>
-                        <span class="text-success fw-semibold">
-                          Rp {{ number_format($item->product->price_sale * $item->quantity, 0, ',', '.') }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="text-center d-none d-md-table-cell">{{ $item->quantity }}</td>
-                <td class="text-end text-success fw-semibold d-none d-md-table-cell">
-                  Rp {{ number_format($item->product->price_sale * $item->quantity, 0, ',', '.') }}
-                </td>
-              </tr>
+                <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
             @endforeach
-          </tbody>
-        </table>
-      </div>
 
-      <div class="border-top pt-3 text-end mb-4">
-        <h5 class="fw-bold text-success mb-0">
-          Total Pembayaran: Rp {{ number_format($total, 0, ',', '.') }}
-        </h5>
-      </div>
+            <div class="row g-4">
+                {{-- LEFT COLUMN: Shipping & Payment --}}
+                <div class="col-lg-7">
+                    
+                    {{-- 1. Data Penerima --}}
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-success mb-3">
+                                <i class="bi bi-geo-alt-fill me-2"></i> Alamat Pengiriman
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-muted">Nama Penerima</label>
+                                    <input type="text" name="nama_penerima" class="form-control rounded-3" placeholder="Nama Lengkap" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-muted">Nomor Telepon</label>
+                                    <input type="text" name="no_telepon" class="form-control rounded-3" placeholder="08xxx" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small text-muted">Alamat Lengkap</label>
+                                    <textarea name="alamat" class="form-control rounded-3" rows="3" placeholder="Jalan, RT/RW, Nomor Rumah, Kelurahan..." required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small text-muted">Catatan (Opsional)</label>
+                                    <textarea name="catatan" class="form-control rounded-3" rows="2" placeholder="Pesan untuk penjual..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-      <!-- FORM DATA PENGIRIMAN DAN PEMBAYARAN -->
-      <form action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data">
-        @csrf
+                    {{-- 2. Payment Method --}}
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-success mb-3">
+                                <i class="bi bi-wallet2 me-2"></i> Pembayaran
+                            </h5>
 
-        <h5 class="fw-bold text-success mb-3">
-          <i class="bi bi-person-lines-fill me-2"></i> Data Penerima
-        </h5>
+                            {{-- Payment Selection Cards --}}
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="cursor-pointer w-100">
+                                        <input type="radio" name="payment_method" value="cash" class="btn-check" id="cod" checked>
+                                        <div class="payment-card border rounded-4 p-3 text-center h-100 position-relative">
+                                            <i class="bi bi-cash-stack fs-2 d-block mb-2 text-success"></i>
+                                            <span class="fw-bold d-block small">COD</span>
+                                            <span class="text-muted small">Bayar di Tempat</span>
+                                            <div class="check-icon"><i class="bi bi-check-circle-fill text-success"></i></div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <label class="cursor-pointer w-100">
+                                        <input type="radio" name="payment_method" value="transfer" class="btn-check" id="transfer">
+                                        <div class="payment-card border rounded-4 p-3 text-center h-100 position-relative">
+                                            <i class="bi bi-qr-code-scan fs-2 d-block mb-2 text-primary"></i>
+                                            <span class="fw-bold d-block small">Transfer / QRIS</span>
+                                            <span class="text-muted small">Scan & Upload</span>
+                                            <div class="check-icon"><i class="bi bi-check-circle-fill text-success"></i></div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Nama Penerima</label>
-            <input type="text" name="nama_penerima" class="form-control rounded-3" placeholder="Masukkan nama lengkap" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label fw-semibold">Nomor Telepon</label>
-            <input type="text" name="no_telepon" class="form-control rounded-3" placeholder="Contoh: 08123456789" required>
-          </div>
-          <div class="col-12">
-            <label class="form-label fw-semibold">Alamat Lengkap</label>
-            <textarea name="alamat" class="form-control rounded-3" rows="3" placeholder="Masukkan alamat lengkap pengiriman" required></textarea>
-          </div>
-          <div class="col-12">
-            <label class="form-label fw-semibold">Catatan Tambahan (Opsional)</label>
-            <textarea name="catatan" class="form-control rounded-3" rows="2" placeholder="Tulis catatan untuk penjual jika perlu"></textarea>
-          </div>
-        </div>
+                            {{-- Transfer Detail Section --}}
+                            <div id="transfer-section" class="d-none animate-fade-in">
+                                <div class="bg-light rounded-4 p-4 text-center border">
+                                    <h6 class="fw-bold text-dark mb-3">Scan QRIS untuk Membayar</h6>
+                                    
+                                    {{-- Placeholder QR --}}
+                                    <div class="bg-white p-3 rounded-3 d-inline-block shadow-sm mb-3">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" 
+                                             alt="QRIS Code" class="img-fluid" style="width: 150px; height: 150px;">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="mb-1 fw-bold text-primary">BANK BRI</p>
+                                        <p class="mb-0 h5 font-monospace">1234 5678 9012</p>
+                                        <small class="text-muted">a.n Bakso Siocay</small>
+                                    </div>
 
-        <!-- PEMBAYARAN -->
-        <h5 class="fw-bold text-success mb-3">
-          <i class="bi bi-wallet2 me-2"></i> Metode Pembayaran
-        </h5>
+                                    <hr class="my-3">
 
-        <div class="d-flex flex-column flex-md-row gap-3 mb-4">
-          <div class="form-check border p-3 rounded-3 shadow-sm w-100 bg-light">
-            <input class="form-check-input payment-method" type="radio" name="payment_method" id="cod" value="cash" checked>
-            <label class="form-check-label fw-semibold" for="cod">
-              💵 Bayar di Tempat (COD)
-            </label>
-            <p class="small text-muted mb-0">Bayar langsung ke kurir saat pesanan tiba.</p>
-          </div>
-          <div class="form-check border p-3 rounded-3 shadow-sm w-100 bg-light">
-            <input class="form-check-input payment-method" type="radio" name="payment_method" id="transfer" value="transfer">
-            <label class="form-check-label fw-semibold" for="transfer">
-              💳 Transfer Bank
-            </label>
-            <p class="small text-muted mb-0">Upload bukti transfer setelah melakukan pembayaran.</p>
-          </div>
-        </div>
+                                    <div class="text-start">
+                                        <label class="form-label fw-semibold small">Upload Bukti Transfer</label>
+                                        <input type="file" name="bukti_transfer" id="bukti_transfer" class="form-control rounded-3" accept="image/*">
+                                        <small class="text-muted d-block mt-1 fst-italic">*Wajib upload bukti jika via transfer</small>
+                                    </div>
+                                </div>
+                            </div>
 
-        <!-- INFORMASI REKENING & UPLOAD BUKTI -->
-        <div id="transfer-section" class="border p-3 rounded-4 bg-light d-none">
-          <p class="mb-2 fw-semibold text-success">Nomor Rekening Toko:</p>
-          <p class="mb-0">🏦 <strong>BANK BRI</strong> - 1234 5678 9012 a.n <strong>Bakso Siocay</strong></p>
-          <p class="small text-muted mb-3">Transfer sesuai total pembayaran di atas, lalu upload bukti transfer di bawah ini.</p>
+                        </div>
+                    </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Upload Bukti Transfer</label>
-            <input type="file" name="bukti_transfer" id="bukti_transfer" class="form-control rounded-3" accept="image/*">
-            <small class="text-muted">Format: JPG, PNG, maksimal 2MB.</small>
-          </div>
-        </div>
+                </div>
 
-        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm rounded-pill mt-3">
-          <i class="bi bi-bag-check-fill me-2"></i> Konfirmasi & Pesan Sekarang
-        </button>
-      </form>
-    </div>
-  @endif
+                {{-- RIGHT COLUMN: Order Summary (Sticky) --}}
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top: 20px;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold text-success mb-4">Ringkasan Pesanan</h5>
+                            
+                            {{-- Item List (Scrollable if too long) --}}
+                            <div class="order-list mb-4 pe-2" style="max-height: 400px; overflow-y: auto;">
+                                @foreach($cartItems as $item)
+                                    <div class="d-flex align-items-center mb-3">
+                                        <img src="{{ asset('images/products/' . $item->product->image) }}" 
+                                             class="rounded-3 me-3 object-fit-cover bg-light" 
+                                             style="width: 60px; height: 60px;">
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-semibold mb-0 text-dark">{{ $item->product->name }}</h6>
+                                            <small class="text-muted">{{ $item->quantity }} x Rp {{ number_format($item->product->price_sale, 0, ',', '.') }}</small>
+                                        </div>
+                                        <div class="text-end fw-semibold text-secondary">
+                                            Rp {{ number_format($item->product->price_sale * $item->quantity, 0, ',', '.') }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <hr class="border-dashed">
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal Produk</span>
+                                <span class="fw-semibold">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-4">
+                                <span class="text-muted">Ongkos Kirim</span>
+                                <span class="text-success fw-semibold">Gratis</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4 pt-2 border-top">
+                                <span class="fw-bold fs-5 text-dark">Total Bayar</span>
+                                <span class="fw-bold fs-4 text-success">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold shadow-sm hover-scale">
+                                Buat Pesanan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    @endif
 </div>
 
-{{-- SCRIPT INTERAKTIF --}}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const cod = document.getElementById('cod');
-  const transfer = document.getElementById('transfer');
-  const transferSection = document.getElementById('transfer-section');
-  const uploadInput = document.getElementById('bukti_transfer');
+    document.addEventListener('DOMContentLoaded', () => {
+        const codRadio = document.getElementById('cod');
+        const transferRadio = document.getElementById('transfer');
+        const transferSection = document.getElementById('transfer-section');
+        const uploadInput = document.getElementById('bukti_transfer');
 
-  function toggleTransferSection() {
-    if (transfer.checked) {
-      transferSection.classList.remove('d-none');
-      uploadInput.setAttribute('required', 'required');
-    } else {
-      transferSection.classList.add('d-none');
-      uploadInput.removeAttribute('required');
-    }
-  }
+        function togglePayment() {
+            if (transferRadio.checked) {
+                transferSection.classList.remove('d-none');
+                uploadInput.setAttribute('required', 'required');
+            } else {
+                transferSection.classList.add('d-none');
+                uploadInput.removeAttribute('required');
+            }
+        }
 
-  cod.addEventListener('change', toggleTransferSection);
-  transfer.addEventListener('change', toggleTransferSection);
-  toggleTransferSection();
-});
+        codRadio.addEventListener('change', togglePayment);
+        transferRadio.addEventListener('change', togglePayment);
+        togglePayment(); // Init
+    });
 </script>
 
 <style>
-.form-check-input:checked {
-  background-color: #198754;
-  border-color: #198754;
+/* Payment Card Styles */
+.btn-check:checked + .payment-card {
+    border-color: #198754 !important;
+    background-color: #f0fdf4;
 }
-#transfer-section {
-  transition: all 0.3s ease;
+.btn-check:checked + .payment-card .check-icon {
+    opacity: 1;
+}
+.payment-card {
+    transition: all 0.2s;
+    border: 2px solid #dee2e6;
+}
+.check-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+.border-dashed {
+    border-style: dashed !important;
+}
+
+/* Animations */
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 </style>
 @endsection

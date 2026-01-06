@@ -16,9 +16,22 @@ class HomeController extends Controller
         return view('frontend.home', compact('products'));
     }
 
-    public function menu()
+    public function menu(Request $request)
     {
-        $products = Product::all();
+        $query = Product::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('category') && $request->category != '') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        $products = $query->latest()->paginate(12);
         return view('frontend.menu', compact('products'));
     }
 
@@ -32,7 +45,7 @@ class HomeController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         if (!Auth::check()) {
@@ -43,11 +56,11 @@ class HomeController extends Controller
         $total = $product->price * $request->quantity;
 
         Order::create([
-            'user_id'        => Auth::id(),
-            'total_price'    => $total,
-            'status_order'   => 'Pending',
+            'user_id' => Auth::id(),
+            'total_price' => $total,
+            'status_order' => 'Pending',
             'status_payment' => 'Belum Bayar',
-            'amount_paid'    => 0,
+            'amount_paid' => 0,
         ]);
 
         return redirect()->route('home')->with('success', 'Pesanan berhasil dibuat!');

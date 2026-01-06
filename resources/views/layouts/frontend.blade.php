@@ -34,18 +34,19 @@
     }
 
     .navbar-brand {
-      font-weight: 600;
+      font-weight: 700;
       color: #fff !important;
-      font-size: 1.4rem;
+      font-size: 1.8rem;
       transition: transform 0.3s;
     }
     .navbar-brand:hover { transform: scale(1.05); }
 
     .nav-link {
       color: #e9f6ec !important;
-      margin-right: 15px;
+      margin-right: 20px;
       position: relative;
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 1.15rem;
       transition: all 0.3s ease;
     }
     .nav-link::after {
@@ -386,6 +387,8 @@
       }
     });
   </script>
+
+  @stack('styles')
 </head>
 <body>
 
@@ -439,8 +442,92 @@
   </main>
 
   {{-- Footer --}}
-  <footer>
-    &copy; {{ date('Y') }} Siocay — Hangat, Lezat, dan Dekat denganmu 💚
+  <footer class="text-white mt-5" style="background: linear-gradient(135deg, #3ca65a, #2f7a52); border-radius: 20px 20px 0 0;">
+      <div class="container pt-5 pb-4">
+          <div class="row g-4 justify-content-between">
+              {{-- Brand Column --}}
+              <div class="col-lg-4 mb-4 mb-lg-0">
+                  <h4 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
+                      <i class="bi bi-cup-hot-fill"></i> Bakso Siocay
+                  </h4>
+                  <p class="text-white small mb-4 opacity-75" style="line-height: 1.8; max-width: 350px;">
+                      Menyajikan bakso lezat dan kopi pilihan dengan suasana yang hangat. Temukan rasa favoritmu di sini.
+                  </p>
+                  <a href="#" class="text-white text-decoration-none small fw-bold hover-scale d-inline-block border-bottom border-white pb-1">
+                      Baca Selengkapnya <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+              </div>
+
+              {{-- Categories Column --}}
+              <div class="col-lg-2 col-6">
+                  <h6 class="fw-bold mb-4 text-white spacing-1 border-bottom border-white border-opacity-25 d-inline-block pb-1">KATEGORI</h6>
+                  <ul class="list-unstyled d-flex flex-column gap-2 small text-white opacity-75">
+                      <li><a href="{{ route('menu', ['category' => 'Bakso']) }}" class="text-reset text-decoration-none hover-text-white transition-opacity">Bakso Kuah</a></li>
+                      <li><a href="{{ route('menu', ['category' => 'Kopi']) }}" class="text-reset text-decoration-none hover-text-white transition-opacity">Kopi Series</a></li>
+                      <li><a href="{{ route('menu', ['category' => 'Minuman']) }}" class="text-reset text-decoration-none hover-text-white transition-opacity">Minuman Segar</a></li>
+                      <li><a href="{{ route('menu') }}" class="text-reset text-decoration-none hover-text-white transition-opacity">Menu Spesial</a></li>
+                  </ul>
+              </div>
+
+              {{-- Tag Cloud Column --}}
+              <div class="col-lg-3 col-6">
+                  <h6 class="fw-bold mb-4 text-white spacing-1 border-bottom border-white border-opacity-25 d-inline-block pb-1">TAG POPULER</h6>
+                  <div class="d-flex flex-wrap gap-2">
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Pedas</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Manis</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Gurih</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Kopi</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Segar</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Bakso</a>
+                      <a href="#" class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Es Krim</a>
+                  </div>
+              </div>
+
+              {{-- Subscribe & Social Column --}}
+              <div class="col-lg-3">
+                  <h6 class="fw-bold mb-4 text-white spacing-1 border-bottom border-white border-opacity-25 d-inline-block pb-1">BERLANGGANAN</h6>
+                  <form action="#" class="mb-4 position-relative">
+                      <input type="email" class="form-control bg-white bg-opacity-10 border-white border-opacity-25 text-white rounded-1 py-2 pe-5 placeholder-white-50" placeholder="Email kamu..." style="border-radius: 8px;">
+                      <button type="submit" class="btn btn-light text-success position-absolute top-0 end-0 h-100 px-3 d-flex align-items-center justify-content-center" style="border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+                          <i class="bi bi-send-fill small"></i>
+                      </button>
+                  </form>
+
+                  <h6 class="fw-bold mb-3 text-white spacing-1 small">IKUTI KAMI</h6>
+                  <div class="d-flex gap-2">
+                      <a href="#" class="btn btn-outline-light border-opacity-25 rounded-circle p-0 d-flex align-items-center justify-content-center hover-icon-white transition-all text-white" style="width: 38px; height: 38px;">
+                          <i class="bi bi-twitter"></i>
+                      </a>
+                      <a href="#" class="btn btn-outline-light border-opacity-25 rounded-circle p-0 d-flex align-items-center justify-content-center hover-icon-white transition-all text-white" style="width: 38px; height: 38px;">
+                          <i class="bi bi-facebook"></i>
+                      </a>
+                      <a href="#" class="btn btn-outline-light border-opacity-25 rounded-circle p-0 d-flex align-items-center justify-content-center hover-icon-white transition-all text-white" style="width: 38px; height: 38px;">
+                          <i class="bi bi-instagram"></i>
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      {{-- Copyright Bar --}}
+      <div class="border-top border-white border-opacity-10" style="background-color: rgba(0,0,0,0.1);">
+          <div class="container py-4">
+              <div class="row align-items-center">
+                  <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                      <p class="small text-white opacity-75 mb-0">
+                          Copyright &copy; {{ date('Y') }} All rights reserved | Made with <i class="bi bi-heart-fill text-white" aria-hidden="true"></i> by <span class="fw-bold">Siocay</span>
+                      </p>
+                  </div>
+                  <div class="col-md-6 text-center text-md-end">
+                      <ul class="list-inline mb-0 small opacity-75">
+                          <li class="list-inline-item me-4"><a href="#" class="text-white text-decoration-none hover-text-white transition-opacity">Terms</a></li>
+                          <li class="list-inline-item me-4"><a href="#" class="text-white text-decoration-none hover-text-white transition-opacity">Privacy</a></li>
+                          <li class="list-inline-item"><a href="#" class="text-white text-decoration-none hover-text-white transition-opacity">Compliances</a></li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
+      </div>
   </footer>
 
   @auth
@@ -448,31 +535,56 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   
   {{-- User Sidebar Kanan --}}
-  <div class="user-sidebar" id="userSidebar">
-    <div class="user-sidebar-header">
-      <h5>
-        <i class="bi bi-person-fill"></i>
-        Menu Pengguna
-      </h5>
-      <button class="sidebar-close-btn" id="closeSidebarBtn" type="button">
-        <i class="bi bi-x-lg"></i>
-      </button>
+  {{-- User Sidebar Kanan --}}
+  {{-- User Sidebar Kanan --}}
+  <div class="user-sidebar bg-white" id="userSidebar">
+    
+    {{-- Header --}}
+    <div class="user-sidebar-header d-flex justify-content-between align-items-center p-4 border-bottom">
+        <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Menu Pengguna</h5>
+        <button class="btn btn-close" id="closeSidebarBtn" type="button" aria-label="Close"></button>
     </div>
-    <div class="user-sidebar-body">
-      <a href="{{ route('frontend.riwayat') }}" class="sidebar-menu-item">
-        <i class="bi bi-receipt"></i>
-        <span>Riwayat Pesanan Saya</span>
-      </a>
-      
-      <form method="POST" action="{{ route('logout') }}" class="d-inline">
-        @csrf
-        <button type="submit" class="sidebar-menu-item logout-item">
-          <i class="bi bi-box-arrow-right"></i>
-          <span>Logout</span>
-        </button>
-      </form>
+
+    <div class="user-sidebar-body p-0">
+        {{-- Profile Section --}}
+        <div class="p-4 bg-light border-bottom">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                    {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">{{ Auth::user()->name ?? 'Pengguna' }}</h6>
+                    <small class="text-secondary">{{ Auth::user()->email ?? '' }}</small>
+                </div>
+            </div>
+        </div>
+
+        {{-- Menu Links --}}
+        <div class="list-group list-group-flush pt-2">
+            <a href="{{ route('frontend.riwayat') }}" class="list-group-item list-group-item-action border-0 px-4 py-3 d-flex align-items-center gap-3 text-secondary">
+                <i class="bi bi-clock-history fs-5"></i>
+                <span class="fw-medium">Riwayat Pesanan</span>
+            </a>
+            
+            <form method="POST" action="{{ route('logout') }}" class="w-100">
+                @csrf
+                <button type="submit" class="list-group-item list-group-item-action border-0 px-4 py-3 d-flex align-items-center gap-3 text-danger mt-2">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                    <span class="fw-medium">Logout</span>
+                </button>
+            </form>
+        </div>
     </div>
   </div>
+
+  <style>
+      .user-sidebar { box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
+      .list-group-item-action:hover { background-color: #f8f9fa; color: #198754 !important; }
+      .list-group-item-action:hover i { color: #198754; }
+      /* Logout hover overrides */
+      button.list-group-item-action:hover { background-color: #fff5f5; color: #dc3545 !important; }
+      button.list-group-item-action:hover i { color: #dc3545; }
+  </style>
   @endauth
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -509,5 +621,48 @@
     });
   </script>
   @endauth
+  {{-- Floating WhatsApp Button --}}
+  <a href="https://wa.me/6281234567890" target="_blank" class="whatsapp-float shadow-lg" title="Chat via WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+  </a>
+
+  <style>
+    .whatsapp-float {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        background-color: #25D366;
+        color: #FFF;
+        border-radius: 50px;
+        text-align: center;
+        font-size: 30px;
+        box-shadow: 2px 2px 3px #999;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .whatsapp-float:hover {
+        background-color: #128C7E;
+        color: #FFF;
+        transform: scale(1.1);
+    }
+
+    @media (max-width: 576px) {
+        .whatsapp-float {
+            width: 50px;
+            height: 50px;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+        }
+    }
+  </style>
+
 </body>
 </html>

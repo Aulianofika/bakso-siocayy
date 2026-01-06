@@ -14,11 +14,21 @@ class CheckoutController extends Controller
     /**
      * Halaman checkout
      */
-    public function index()
+    public function index(Request $request)
     {
-        $cartItems = Cart::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
+        $query = Cart::with('product')
+            ->where('user_id', Auth::id());
+
+        // Jika ada item yang dipilih dari keranjang
+        if ($request->has('selected_items')) {
+            $query->whereIn('id', $request->selected_items);
+        }
+
+        $cartItems = $query->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Silakan pilih produk yang ingin di-checkout, tidak boleh kosong!');
+        }
 
         $total = $cartItems->sum(fn($item) => $item->product->price_sale * $item->quantity);
 
@@ -37,10 +47,13 @@ class CheckoutController extends Controller
             'catatan' => 'nullable|string',
             'payment_method' => 'required|in:cash,transfer',
             'bukti_transfer' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'selected_items' => 'required|array', // Pastikan ada item yang dipilih
+            'selected_items.*' => 'exists:carts,id',
         ]);
 
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
+            ->whereIn('id', $request->selected_items)
             ->get();
 
         if ($cartItems->isEmpty()) {
@@ -72,21 +85,21 @@ class CheckoutController extends Controller
         // Simpan order
         // ======================
         $order = Order::create([
-            'user_id'         => Auth::id(),
-            'source'          => 'web',
-            'total_price'     => $total,
-            'status_order'    => $status_order,
-            'status_payment'  => $status_payment,
-            'payment_method'  => $request->payment_method,
-            'amount_paid'     => $amount_paid,
-            'nama_penerima'   => $request->nama_penerima,
-            'telepon'         => $request->no_telepon,
-            'alamat_lengkap'  => $request->alamat,
-            'catatan'         => $request->catatan,
+            'user_id' => Auth::id(),
+            'source' => 'web',
+            'total_price' => $total,
+            'status_order' => $status_order,
+            'status_payment' => $status_payment,
+            'payment_method' => $request->payment_method,
+            'amount_paid' => $amount_paid,
+            'nama_penerima' => $request->nama_penerima,
+            'telepon' => $request->no_telepon,
+            'alamat_lengkap' => $request->alamat,
+            'catatan' => $request->catatan,
             'rekening_tujuan' => $request->payment_method === 'transfer'
                 ? 'BANK BRI - 1234 5678 9012 a.n Bakso Siocay'
                 : null,
-            'bukti_transfer'  => $buktiPath,
+            'bukti_transfer' => $buktiPath,
         ]);
 
         // ======================
@@ -94,17 +107,19 @@ class CheckoutController extends Controller
         // ======================
         foreach ($cartItems as $item) {
             OrderItem::create([
-                'order_id'   => $order->id,
+                'order_id' => $order->id,
                 'product_id' => $item->product_id,
-                'quantity'   => $item->quantity,
-                'price'      => $item->product->price_sale,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price_sale,
             ]);
         }
 
         // ======================
-        // Kosongkan keranjang
+        // Kosongkan keranjang (Hanya item yang dipilih)
         // ======================
-        Cart::where('user_id', Auth::id())->delete();
+        Cart::where('user_id', Auth::id())
+            ->whereIn('id', $request->selected_items)
+            ->delete();
 
         return redirect()
             ->route('frontend.riwayat')
