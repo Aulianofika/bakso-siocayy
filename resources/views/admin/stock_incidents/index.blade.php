@@ -15,7 +15,7 @@
                 </a>
                 <a href="{{ route('admin.stock-incidents.create') }}"
                     class="btn btn-primary shadow-sm rounded-pill fw-bold px-4 hover-scale">
-                    <i class="bi bi-plus-circle me-2"></i> Lapor Insiden
+                    <i class="bi bi-plus-lg me-2"></i> Lapor Insiden
                 </a>
             </div>
         </div>

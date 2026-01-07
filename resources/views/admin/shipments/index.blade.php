@@ -24,9 +24,9 @@
         <h3 class="fw-bold text-dark mb-0">Manajemen Pengiriman</h3>
         <div class="d-flex gap-2">
             <a href="{{ route('admin.shipments.preview') }}"
-                class="btn btn-info text-white rounded-pill shadow-sm fw-bold px-4">
-                <i class="bi bi-eye me-2"></i>Lihat Laporan
-            </a>
+                    class="btn btn-white border shadow-sm rounded-pill fw-bold px-4 hover-scale text-dark">
+                    <i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Laporan PDF
+                </a>
             <a href="{{ route('admin.shipments.create') }}" class="btn btn-primary rounded-pill shadow-sm fw-bold px-4">
                 <i class="bi bi-plus-lg me-2"></i>Buat Pengiriman
             </a>

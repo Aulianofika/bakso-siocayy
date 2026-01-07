@@ -316,7 +316,7 @@
                                 Rp {{ number_format($pendapatanBulanIni ?? 0, 0, ',', '.') }}
                             </h2>
                             <div class="d-inline-block bg-white bg-opacity-20 rounded-pill px-3 py-1">
-                                <small class="text-white"><i class="bi bi-arrow-up-circle me-1"></i>Realtime Update</small>
+                                <small class="text-black"><i class="bi bi-arrow-up-circle me-1"></i>Realtime Update</small>
                             </div>
                         </div>
                     </div>

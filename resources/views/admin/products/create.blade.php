@@ -7,7 +7,7 @@
         {{-- Header --}}
         <div class="d-flex justify-content-between align-items-center mb-5 mt-3">
             <div>
-                <h4 class="fw-bold text-dark mb-1">Tambah Produk Baru</h4>
+                <h4 class="fw-bold" style="color:#4a3aff;" ><i class="bi bi-plus-square me-2"></i>Tambah Produk Baru</h4>
                 <span class="text-muted small">Isi formulir di bawah untuk menambahkan produk ke katalog.</span>
             </div>
             <a href="{{ route('admin.products.index') }}" class="btn btn-light rounded-circle shadow-sm"
