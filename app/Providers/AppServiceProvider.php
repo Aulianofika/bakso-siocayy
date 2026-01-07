@@ -24,8 +24,15 @@ class AppServiceProvider extends ServiceProvider
     {
         // Share cart count to all views
         View::composer('layouts.frontend', CartComposer::class);
-        
+
         // Share new orders count to admin layout
         View::composer('layouts.admin', AdminNotificationComposer::class);
+
+        // Share Notification Count to Frontend
+        View::composer('layouts.frontend', function ($view) {
+            if (auth()->check()) {
+                $view->with('unreadNotificationsCount', auth()->user()->unreadNotifications->count());
+            }
+        });
     }
 }

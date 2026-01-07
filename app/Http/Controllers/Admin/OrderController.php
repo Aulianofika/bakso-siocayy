@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Notifications\OrderStatusChanged;
 
 class OrderController extends Controller
 {
@@ -56,30 +57,43 @@ class OrderController extends Controller
     }
 
     /**
-     *  Update STATUS PEMBAYARAN (Belum Bayar / DP / Lunas)
+     *  Update STATUS PEMBAYARAN (Verifikasi / Tolak)
      */
     public function updatePayment(Request $request, Order $order)
     {
         $request->validate([
-            'status_payment' => 'required|in:Belum Bayar,DP,Lunas',
-            'amount_paid' => 'nullable|numeric|min:0'
+            'action' => 'required|in:verify,reject',
+            'note' => 'nullable|string|required_if:action,reject', // Note required if rejected
         ]);
 
-        // Hitung amount_paid otomatis
-        if ($request->status_payment === 'Lunas') {
-            $amountPaid = $order->total_price;
-        } elseif ($request->status_payment === 'DP') {
-            $amountPaid = $request->amount_paid ?? 0;
-        } else {
-            $amountPaid = 0;
+        if ($request->action === 'verify') {
+            $order->update([
+                'status_payment' => 'Lunas',
+                'amount_paid' => $order->total_price, // Full payment
+                'payment_verified_at' => now(),
+            ]);
+
+            // Notify User
+            $order->user->notify(new OrderStatusChanged($order, 'Pembayaran Anda telah diverifikasi.'));
+
+            return back()->with('success', 'Pembayaran berhasil diverifikasi!');
         }
 
-        $order->update([
-            'status_payment' => $request->status_payment,
-            'amount_paid' => $amountPaid,
-        ]);
+        if ($request->action === 'reject') {
+            $order->update([
+                'status_payment' => 'Ditolak',
+                'status_order' => 'Ditolak',
+                'amount_paid' => 0,
+                'rejection_note' => $request->note,
+            ]);
 
-        return back()->with('success', 'Status pembayaran berhasil diperbarui!');
+            // Notify User
+            $order->user->notify(new OrderStatusChanged($order, 'Maaf, pembayaran Anda ditolak.'));
+
+            return back()->with('success', 'Pembayaran dan Pesanan ditolak!');
+        }
+
+        return back()->with('error', 'Aksi tidak valid');
     }
 
     /**
@@ -105,15 +119,8 @@ class OrderController extends Controller
         $newRank = $statusRank[$request->status_order] ?? 0;
 
         // Aturan: Tidak boleh mundur (New Rank < Current Rank)
-        // Kecuali jika status sekarang sudah Ditolak/Selesai mungkin tidak bisa diubah lagi?
-        // Tapi request user spesifik: "tidak bisa dikembalikan lagi ke pending pokonya ga bisa mundur"
-        // Jadi kita kunci jika $newRank < $currentRank
-
-        // Pengecualian: Admin mungkin salah klik 'Ditolak' dan ingin mengembalikan ke proses? 
-        // User bilang "ga bisa mundur", jadi kita strict saja. 
-
         if ($newRank < $currentRank) {
-            return back()->with('error', "Status tidak dapat dikembalikan mundur! ({$order->status_order} -> {$request->status_order})");
+            return back()->with('error', 'Pesanan tidak bisa diubah mundur');
         }
 
         // --- END VALIDASI ALUR ---
@@ -123,7 +130,7 @@ class OrderController extends Controller
             in_array($request->status_order, ['Diproses', 'Siap Dikirim', 'Selesai']) &&
             $order->status_payment !== 'Lunas'
         ) {
-            return back()->with('error', 'Pesanan belum lunas!');
+            return back()->with('error', 'Pesanan belum lunas, harap cek pembayaran terlebih dahulu!');
         }
 
         // kurangi stok
@@ -153,6 +160,9 @@ class OrderController extends Controller
         //update status order
         $order->status_order = $request->status_order;
         $order->save();
+
+        // Notify User
+        $order->user->notify(new OrderStatusChanged($order, "Status pesanan Anda telah berubah menjadi: {$request->status_order}"));
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }

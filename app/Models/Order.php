@@ -24,6 +24,8 @@ class Order extends Model
         'catatan',
         'rekening_tujuan',
         'bukti_transfer',
+        'rejection_note',
+        'payment_verified_at',
     ];
 
     protected static function boot()

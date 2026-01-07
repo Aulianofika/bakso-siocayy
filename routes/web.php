@@ -48,11 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/orders/{order}/received', [FronOrderController::class, 'received'])
         ->name('orders.received');
     Route::get('/riwayat', [RiwayatController::class, 'index'])->name('frontend.riwayat');
+
 });
 
 // admin
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/export', [\App\Http\Controllers\Admin\DashboardController::class, 'exportPdf'])->name('dashboard.export');
 
     Route::resource('categories', CategoryController::class);
     Route::get('/products/preview', [ProductController::class, 'preview'])->name('products.preview');

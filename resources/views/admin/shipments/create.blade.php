@@ -24,7 +24,7 @@
                         @foreach($orders as $order)
                             <option value="{{ $order->id }}" 
                                     data-alamat="{{ $order->alamat_lengkap ?? '' }}">
-                                Invoice #{{ $order->invoice_number }} - {{ $order->user->name ?? 'Tidak diketahui' }}
+                                Kode #{{ $order->invoice_number }} - {{ $order->user->name ?? 'Tidak diketahui' }}
                             </option>
                         @endforeach
                     </select>
@@ -66,7 +66,6 @@
                 <div class="alert alert-info">
                     <strong><i class="bi bi-info-circle me-1"></i> Catatan:</strong>
                     <ul class="mb-0 mt-2">
-                        <li>Barang yang dikirim dapat dilihat di detail pesanan</li>
                         <li>Pastikan alamat tujuan sudah benar</li>
                         <li>Tanggal pengiriman akan tercatat sebagai pengingat</li>
                     </ul>

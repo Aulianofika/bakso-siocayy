@@ -2,49 +2,65 @@
 @section('title', 'Login')
 
 @section('content')
-<form method="POST" action="{{ route('login') }}">
-  @csrf
-  @if(request()->has('redirect'))
-    <input type="hidden" name="redirect" value="{{ request('redirect') }}">
-  @endif
-  @if(session('success'))
-    <div class="alert alert-success small mt-2 fade show text-start" id="alertMessage">
-      <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}
+  <form method="POST" action="{{ route('login') }}">
+    @csrf
+    @if(request()->has('redirect'))
+      <input type="hidden" name="redirect" value="{{ request('redirect') }}">
+    @endif
+    @if(session('success'))
+      <div class="alert alert-success small mt-2 fade show text-start" id="alertMessage">
+        <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}
+      </div>
+    @endif
+
+    {{-- Alert error (email/password salah) --}}
+    @if($errors->any())
+      <div class="alert alert-danger small mt-2 fade show text-start" id="alertMessage">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ $errors->first() }}
+      </div>
+    @endif
+
+    <div class="mb-3 text-start">
+      <label class="form-label"><i class="bi bi-envelope-fill me-1"></i> Email</label>
+      <input type="email" name="email" class="form-control" placeholder="Masukkan email kamu..." required autofocus>
     </div>
-  @endif
 
-  {{--  Alert error (email/password salah) --}}
-  @if($errors->any())
-    <div class="alert alert-danger small mt-2 fade show text-start" id="alertMessage">
-      <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ $errors->first() }}
+    <div class="mb-3 text-start">
+      <label class="form-label"><i class="bi bi-lock-fill me-1"></i> Password</label>
+      <div class="input-group mb-2">
+        <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required
+          minlength="6">
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showPassLogin" onclick="togglePassword('password')">
+        <label class="form-check-label small" for="showPassLogin">Lihat Password</label>
+      </div>
     </div>
-  @endif
 
-  <div class="mb-3 text-start">
-    <label class="form-label"><i class="bi bi-envelope-fill me-1"></i> Email</label>
-    <input type="email" name="email" class="form-control" placeholder="Masukkan email kamu..." required autofocus>
-  </div>
+    <script>
+      function togglePassword(id) {
+        var x = document.getElementById(id);
+        if (x.type === "password") {
+          x.type = "text";
+        } else {
+          x.type = "password";
+        }
+      }
+    </script>
 
-  <div class="mb-3 text-start">
-    <label class="form-label"><i class="bi bi-lock-fill me-1"></i> Password</label>
-    <div class="input-group">
-      <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="{{ route('forgot') }}" class="link-green small">Lupa password?</a>
     </div>
-  </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="{{ route('forgot') }}" class="link-green small">Lupa password?</a>
-  </div>
+    <button type="submit" class="btn-green w-100">
+      <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
+    </button>
 
-  <button type="submit" class="btn-green w-100">
-    <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
-  </button>
-
-  <div class="mt-3 text-center">
-    <span class="small text-muted">Belum punya akun?</span>
-    <a href="{{ route('register') }}" class="link-green small">Daftar sekarang</a>
-  </div>
-</form>
+    <div class="mt-3 text-center">
+      <span class="small text-muted">Belum punya akun?</span>
+      <a href="{{ route('register') }}" class="link-green small">Daftar sekarang</a>
+    </div>
+  </form>
 
 
 @endsection

@@ -24,9 +24,15 @@
             @csrf
             
             {{-- Hidden Selected Items --}}
-            @foreach($cartItems as $item)
-                <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
-            @endforeach
+            {{-- Hidden Selected Items OR Direct Item --}}
+            @if(request()->has('direct_product_id'))
+                <input type="hidden" name="direct_product_id" value="{{ request('direct_product_id') }}">
+                <input type="hidden" name="direct_quantity" value="{{ request('direct_quantity') }}">
+            @else
+                @foreach($cartItems as $item)
+                    <input type="hidden" name="selected_items[]" value="{{ $item->id }}">
+                @endforeach
+            @endif
 
             <div class="row g-4">
                 {{-- LEFT COLUMN: Shipping & Payment --}}

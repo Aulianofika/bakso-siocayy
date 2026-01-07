@@ -27,10 +27,26 @@ class CartController extends Controller
 
         $product = Product::findOrFail($request->product_id);
 
+        // Jika tipe checkout langsung, jangan simpan ke database cart dulu
+        if ($request->input('type') === 'checkout') {
+            return redirect()->route('checkout.index', [
+                'direct_product_id' => $product->id,
+                'direct_quantity' => $request->quantity
+            ])->with('success', 'Produk ditambahkan, silakan lanjutkan pembayaran!');
+        }
+
         // Cek apakah produk sudah ada di keranjang
         $cartItem = Cart::where('user_id', Auth::id())
-                        ->where('product_id', $product->id)
-                        ->first();
+            ->where('product_id', $product->id)
+            ->first();
+
+        // VALIDASI STOK (Stock Management)
+        $currentCartQty = $cartItem ? $cartItem->quantity : 0;
+        $totalRequested = $currentCartQty + $request->quantity;
+
+        if ($totalRequested > $product->stock) {
+            return back()->with('error', 'Stok tidak mencukupi! Sisa stok rata-rata: ' . $product->stock);
+        }
 
         if ($cartItem) {
             $cartItem->update([

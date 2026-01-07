@@ -21,6 +21,30 @@
             </a>
         </div>
 
+
+        @if(isset($notifications) && $notifications->count() > 0)
+            <div class="mb-4">
+                @foreach($notifications as $notification)
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-3 rounded-4 fade show"
+                        role="alert">
+                        <div class="bg-white text-info rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 40px; height: 40px;">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark alert-heading">
+                                Update Pesanan: #{{ $notification->data['invoice_number'] }}
+                            </h6>
+                            <p class="mb-0 small text-secondary">
+                                {{ $notification->data['message'] }}
+                            </p>
+                        </div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="row g-4">
             @forelse ($orders as $order)
                 @php
@@ -40,7 +64,9 @@
 
                     $paymentColor = match ($order->status_payment) {
                         'Lunas' => 'success',
-                        'DP' => 'info',
+                        'Ditolak' => 'danger',
+                        'Menunggu Verifikasi' => 'warning',
+                        'Belum Bayar' => 'warning',
                         default => 'secondary'
                     };
                 @endphp
@@ -94,7 +120,8 @@
 
                                                 <div class="ms-3 flex-grow-1">
                                                     <h6 class="mb-1 fw-bold text-dark">
-                                                        {{ $item->product->name ?? 'Produk Dihapus' }}</h6>
+                                                        {{ $item->product->name ?? 'Produk Dihapus' }}
+                                                    </h6>
                                                     <div class="d-flex align-items-center text-muted small">
                                                         <span class="bg-white px-2 py-1 rounded border">{{ $item->quantity }}
                                                             x</span>
@@ -129,6 +156,13 @@
                                                 </span>
                                             </div>
 
+                                            @if($order->status_payment === 'Ditolak' && $order->rejection_note)
+                                                <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3">
+                                                    <strong>Alasan Penolakan:</strong><br>
+                                                    {{ $order->rejection_note }}
+                                                </div>
+                                            @endif
+
                                             <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                                                 <span class="fw-bold text-dark">Total Tagihan</span>
                                                 <span class="fw-bold text-success fs-5">Rp
@@ -137,16 +171,16 @@
                                         </div>
 
                                         <div class="mt-4 d-grid gap-2">
-                                        @if($order->status_order === 'Dikirim')
-                                            <form action="{{ route('orders.received', $order->id) }}" method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button onclick="return confirm('Pesanan sudah diterima dengan baik?')"
-                                                    class="btn btn-success w-100 fw-bold shadow-sm py-2">
-                                                    <i class="bi bi-box-seam-fill me-2"></i>Pesanan Diterima
-                                                </button>
-                                            </form>
-                                        @endif
+                                            @if($order->status_order === 'Dikirim')
+                                                <form action="{{ route('orders.received', $order->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button onclick="return confirm('Pesanan sudah diterima dengan baik?')"
+                                                        class="btn btn-success w-100 fw-bold shadow-sm py-2">
+                                                        <i class="bi bi-box-seam-fill me-2"></i>Pesanan Diterima
+                                                    </button>
+                                                </form>
+                                            @endif
 
                                             @if ($order->payment_method === 'transfer' && $order->bukti_transfer)
                                                 <button class="btn btn-outline-secondary btn-sm fw-medium w-100 py-2"

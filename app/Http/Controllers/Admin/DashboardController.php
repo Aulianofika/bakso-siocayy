@@ -51,11 +51,14 @@ class DashboardController extends Controller
         $totalPendapatan = $applyTypeFilter(Order::where('status_payment', 'Lunas'))
             ->sum('total_price');
         $pendapatanHariIni = $applyTypeFilter(Order::where('status_payment', 'Lunas')
-            ->whereDate('created_at', today()))
+            ->whereDate('payment_verified_at', today()))
             ->sum('total_price');
         $pendapatanBulanIni = $applyTypeFilter(Order::where('status_payment', 'Lunas')
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year))
+            ->whereMonth('payment_verified_at', now()->month)
+            ->whereYear('payment_verified_at', now()->year))
+            ->sum('total_price');
+        $pendapatanTahunIni = $applyTypeFilter(Order::where('status_payment', 'Lunas')
+            ->whereYear('payment_verified_at', now()->year))
             ->sum('total_price');
 
         // Untuk user, kita tidak filter berdasarkan pembelian karena user itu global
@@ -74,15 +77,46 @@ class DashboardController extends Controller
             ->pluck('total', 'status_order');
 
         // =========================
+        // GRAFIK PENJUALAN (Dynamic)
+        // =========================
+        // Default: Monthly Trend (Daily data for current month)
+        // Yearly Trend (Monthly data for current year)
+        // Yearly Trend (Monthly data for current year)
+        // Yearly Trend (Monthly data for current year)
+        $chartMonth = $applyTypeFilter(Order::select(
+            DB::raw('DATE(payment_verified_at) as tanggal'),
+            DB::raw('SUM(total_price) as total')
+        ))
+            ->where('status_payment', 'Lunas')
+            ->whereMonth('payment_verified_at', now()->month)
+            ->whereYear('payment_verified_at', now()->year)
+            ->groupBy('tanggal')
+            ->orderBy('tanggal')
+            ->get();
+
+        $chartYear = $applyTypeFilter(Order::select(
+            DB::raw('MONTH(payment_verified_at) as bulan'),
+            DB::raw('SUM(total_price) as total')
+        ))
+            ->where('status_payment', 'Lunas')
+            ->whereYear('payment_verified_at', now()->year)
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
+
+        // =========================
+        // GRAFIK PENJUALAN 7 HARI
+        // =========================
+        // =========================
         // GRAFIK PENJUALAN 7 HARI
         // =========================
         $penjualanMingguan = $applyTypeFilter(Order::select(
-            DB::raw('DATE(created_at) as tanggal'),
+            DB::raw('DATE(payment_verified_at) as tanggal'),
             DB::raw('COUNT(*) as jumlah'),
             DB::raw('SUM(total_price) as total')
         ))
             ->where('status_payment', 'Lunas')
-            ->whereDate('created_at', '>=', now()->subDays(6))
+            ->whereDate('payment_verified_at', '>=', now()->subDays(6))
             ->groupBy('tanggal')
             ->orderBy('tanggal')
             ->get();
@@ -111,6 +145,12 @@ class DashboardController extends Controller
         }
         $topProducts = $queryTop->get();
 
+        // =========================
+        // STOCK ALERTS (New)
+        // =========================
+        // Cari produk dengan stok <= 5
+        $lowStockProducts = Product::where('stock', '<=', 5)->orderBy('stock', 'asc')->get();
+
         return view('admin.dashboard', compact(
             'totalProduk',
             'totalPesanan',
@@ -120,13 +160,55 @@ class DashboardController extends Controller
             'totalPendapatan',
             'pendapatanHariIni',
             'pendapatanBulanIni',
+            'pendapatanTahunIni',
             'pelangganAktif',
             'totalPelanggan',
             'pesananByStatus',
             'penjualanMingguan',
             'pesananTerbaru',
             'topProducts',
-            'type' // Pass 'type' to view for tabs
+            'type',
+            'lowStockProducts',
+            'chartMonth',
+            'chartYear'
         ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $type = $request->query('type', 'daily'); // daily, monthly, yearly
+        $date = $request->query('date', now()->format('Y-m-d'));
+        $month = $request->query('month', now()->format('Y-m'));
+        $year = $request->query('year', now()->format('Y'));
+
+        $query = Order::where('status_payment', 'Lunas');
+        $title = 'Laporan Pendapatan';
+        $period = '';
+
+        if ($type == 'daily') {
+            $query->whereDate('payment_verified_at', $date);
+            $title = 'Laporan Harian';
+            $period = Carbon::parse($date)->translatedFormat('d F Y');
+        } elseif ($type == 'monthly') {
+            $d = Carbon::createFromFormat('Y-m', $month);
+            $query->whereYear('payment_verified_at', $d->year)->whereMonth('payment_verified_at', $d->month);
+            $title = 'Laporan Bulanan';
+            $period = $d->translatedFormat('F Y');
+        } elseif ($type == 'yearly') {
+            $query->whereYear('payment_verified_at', $year);
+            $title = 'Laporan Tahunan';
+            $period = 'Tahun ' . $year;
+        }
+
+        $orders = $query->latest()->get();
+        $totalRevenue = $orders->sum('total_price');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports.pdf', compact('orders', 'totalRevenue', 'title', 'period', 'type'));
+
+        if ($request->input('action') === 'preview') {
+            return $pdf->stream('laporan-pendapatan-' . $type . '-' . time() . '.pdf');
+        }
+
+        return $pdf->download('laporan-pendapatan-' . $type . '-' . time() . '.pdf');
     }
 }
