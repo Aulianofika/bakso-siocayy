@@ -275,10 +275,7 @@
         <div class="container">
             <div class="position-relative rounded-5 overflow-hidden shadow-lg border border-3 border-white"
                 style="height: 450px;">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322298!2d106.8191598143154!3d-6.194449195508445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5396b5e8f1f%3A0x3a5d2f5e5a5a5a5a!2sJakarta!5e0!3m2!1sid!2sid!4v1234567890123!5m2!1sid!2sid"
-                    width="100%" height="100%" style="border:0; filter: grayscale(20%);" allowfullscreen="" loading="lazy">
-                </iframe>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7978.643362787476!2d100.35249486075057!3d-0.9040364963336108!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2fd4b8b12373312b%3A0xb36216b61b6ce511!2sKampung%20Lapai%2C%20Nanggalo%2C%20Padang%20City%2C%20West%20Sumatra!5e0!3m2!1sen!2sid!4v1767774737322!5m2!1sen!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
                 {{-- Floating Info Card --}}
                 <div class="position-absolute top-50 start-0 translate-middle-y ms-md-5 p-3"
@@ -297,7 +294,7 @@
                                 <i class="bi bi-geo-alt text-danger mt-1"></i>
                                 <div>
                                     <h6 class="fw-bold mb-0 small">Alamat</h6>
-                                    <p class="text-muted small mb-0">Jl. Alai No. 23, Padang </p>
+                                    <p class="text-muted small mb-0">Kampung Lapai Nanggalo, Padang City, West Sumatra </p>
                                 </div>
                             </div>
                             <div class="d-flex gap-3">
