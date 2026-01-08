@@ -77,81 +77,62 @@
 
             <hr class="border-light mb-4 mb-lg-5">
 
-            @auth
-              @if($product->stock > 0)
-                <form action="{{ route('cart.add') }}" method="POST" class="animate-fade-up delay-200">
-                  @csrf
-                  <input type="hidden" name="product_id" value="{{ $product->id }}">
+            @if($product->stock > 0)
+              <form action="{{ route('cart.add') }}" method="POST" class="animate-fade-up delay-200">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-                  <div class="row g-3 align-items-end">
-                    <div class="col-sm-5 col-6">
-                      <label class="form-label text-dark fw-bold small mb-2">Jumlah Pesanan</label>
-                      <div class="input-group border rounded-pill overflow-hidden bg-white shadow-sm p-1">
-                        <button type="button"
-                          class="btn btn-white rounded-circle border-0 text-success fw-bold px-2 px-lg-3 hover-bg-light"
-                          onclick="decrementValue()">
-                          <i class="bi bi-dash-lg"></i>
-                        </button>
-                        <input type="number" name="quantity" id="quantity"
-                          class="form-control border-0 text-center fw-bold bg-transparent mx-0 mx-lg-1" value="1" min="1"
-                          max="{{ $product->stock }}" style="width: 40px;">
-                        <button type="button"
-                          class="btn btn-white rounded-circle border-0 text-success fw-bold px-2 px-lg-3 hover-bg-light"
-                          onclick="incrementValue()">
-                          <i class="bi bi-plus-lg"></i>
-                        </button>
-                      </div>
-                      <div class="text-muted xsmall mt-2 ps-2">Maks: {{ $product->stock }}</div>
+                <div class="row g-3 align-items-end">
+                  <div class="col-sm-5 col-6">
+                    <label class="form-label text-dark fw-bold small mb-2">Jumlah Pesanan</label>
+                    <div class="input-group border rounded-pill overflow-hidden bg-white shadow-sm p-1">
+                      <button type="button"
+                        class="btn btn-white rounded-circle border-0 text-success fw-bold px-2 px-lg-3 hover-bg-light"
+                        onclick="decrementValue()">
+                        <i class="bi bi-dash-lg"></i>
+                      </button>
+                      <input type="number" name="quantity" id="quantity"
+                        class="form-control border-0 text-center fw-bold bg-transparent mx-0 mx-lg-1" value="1" min="1"
+                        max="{{ $product->stock }}" style="width: 40px;">
+                      <button type="button"
+                        class="btn btn-white rounded-circle border-0 text-success fw-bold px-2 px-lg-3 hover-bg-light"
+                        onclick="incrementValue()">
+                        <i class="bi bi-plus-lg"></i>
+                      </button>
                     </div>
+                    <div class="text-muted xsmall mt-2 ps-2">Maks: {{ $product->stock }}</div>
+                  </div>
 
-                    <div class="col-sm-7 col-12">
-                      <div class="d-flex gap-2">
-                        <button type="submit" name="type" value="cart"
-                          class="btn btn-outline-success rounded-pill flex-grow-1 py-3 fw-bold shadow-sm hover-translate transition-all">
-                          <i class="bi bi-cart-plus me-1"></i> <span class="small">Keranjang</span>
-                        </button>
-                        <button type="submit" name="type" value="checkout"
-                          class="btn btn-success rounded-pill flex-grow-1 py-3 fw-bold shadow-lg hover-translate hover-shadow-success transition-all">
-                          <i class="bi bi-bag-check-fill me-1"></i> <span class="small">Beli Langsung</span>
-                        </button>
-                      </div>
+                  <div class="col-sm-7 col-12">
+                    <div class="d-flex gap-2">
+                      <button @auth type="submit" @else type="button"
+                      onclick="window.location.href='{{ route('login') }}?alert=login_required'" @endauth name="type"
+                        value="cart"
+                        class="btn btn-outline-success rounded-pill flex-grow-1 py-3 fw-bold shadow-sm hover-translate transition-all">
+                        <i class="bi bi-cart-plus me-1"></i> <span class="small">Keranjang</span>
+                      </button>
+                      <button @auth type="submit" @else type="button"
+                      onclick="window.location.href='{{ route('login') }}?alert=login_required'" @endauth name="type"
+                        value="checkout"
+                        class="btn btn-success rounded-pill flex-grow-1 py-3 fw-bold shadow-lg hover-translate hover-shadow-success transition-all">
+                        <i class="bi bi-bag-check-fill me-1"></i> <span class="small">Beli Langsung</span>
+                      </button>
                     </div>
-                  </div>
-                </form>
-              @else
-                <div
-                  class="alert alert-danger border-0 shadow-sm rounded-4 animate-fade-up delay-200 d-flex align-items-center gap-3 p-3">
-                  <div class="bg-white text-danger rounded-circle p-2 shadow-sm">
-                    <i class="bi bi-x-circle-fill fs-4"></i>
-                  </div>
-                  <div>
-                    <h6 class="fw-bold mb-0">Maaf, Stok Habis!</h6>
-                    <p class="mb-0 small opacity-75">Silakan cek kembali nanti atau pilih menu lainnya.</p>
                   </div>
                 </div>
-              @endif
+              </form>
             @else
-              <div class="card border-0 shadow-sm rounded-4 bg-white animate-fade-up delay-200 overflow-hidden">
-                <div class="card-body p-4 text-center position-relative">
-                  <div class="position-absolute top-0 start-0 w-100 h-100 bg-success opacity-10"></div>
-                  <div class="position-relative z-1">
-                    <div class="mb-3">
-                      <div
-                        class="d-inline-flex align-items-center justify-content-center bg-white text-success rounded-circle shadow-sm"
-                        style="width: 50px; height: 50px;">
-                        <i class="bi bi-lock-fill fs-4"></i>
-                      </div>
-                    </div>
-                    <h5 class="fw-bold text-dark mb-2">Yuk, Login Dulu!</h5>
-                    <p class="text-muted small mb-4">Untuk memesan menu lezat ini, kamu perlu masuk ke akunmu.</p>
-                    <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}"
-                      class="btn btn-success rounded-pill px-5 fw-bold shadow-sm w-100 w-sm-auto">
-                      Masuk Sekarang
-                    </a>
-                  </div>
+              <div
+                class="alert alert-danger border-0 shadow-sm rounded-4 animate-fade-up delay-200 d-flex align-items-center gap-3 p-3">
+                <div class="bg-white text-danger rounded-circle p-2 shadow-sm">
+                  <i class="bi bi-x-circle-fill fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">Maaf, Stok Habis!</h6>
+                  <p class="mb-0 small opacity-75">Silakan cek kembali nanti atau pilih menu lainnya.</p>
                 </div>
               </div>
-            @endauth
+            @endif
           </div>
         </div>
       </div>

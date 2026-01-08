@@ -13,6 +13,13 @@
       </div>
     @endif
 
+    {{-- Alert Login Required --}}
+    @if(request('alert') == 'login_required')
+      <div class="alert alert-warning small mt-2 fade show text-start">
+        <i class="bi bi-exclamation-circle-fill me-1"></i> Silahkan login terlebih dahulu.
+      </div>
+    @endif
+
     {{-- Alert error (email/password salah) --}}
     @if($errors->any())
       <div class="alert alert-danger small mt-2 fade show text-start" id="alertMessage">

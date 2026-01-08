@@ -60,6 +60,16 @@ class CartController extends Controller
             ]);
         }
 
+        // Return JSON for AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
+            $newCartCount = Cart::where('user_id', Auth::id())->count();
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil ditambahkan ke keranjang!',
+                'cart_count' => $newCartCount
+            ]);
+        }
+
         return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
