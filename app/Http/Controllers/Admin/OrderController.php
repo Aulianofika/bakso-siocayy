@@ -15,11 +15,33 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::with(['user', 'orderItems.product.category'])
-            ->latest();
+        $query = Order::with(['user', 'orderItems.product.category']);
+
+        // Filter Sort (Terbaru / Terlama)
+        if ($request->input('sort') === 'oldest') {
+            $query->oldest();
+        } else {
+            $query->latest(); // Default newest
+        }
+
+        // Filter Search (Invoice / Nama Pelanggan)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%") // Fallback for ID if invoice is ID
+                    ->orWhereHas('user', function ($u) use ($search) {
+                        $u->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
 
         if ($request->filled('status_order')) {
-            $query->where('status_order', $request->status_order);
+            if ($request->status_order === 'attention') {
+                $query->whereIn('status_order', ['Pending', 'Menunggu Pembatalan']);
+            } else {
+                $query->where('status_order', $request->status_order);
+            }
         }
 
         if ($request->filled('payment_method')) {
@@ -80,6 +102,9 @@ class OrderController extends Controller
         }
 
         if ($request->action === 'reject') {
+            // Kembalikan stok
+            $this->restoreStock($order);
+
             $order->update([
                 'status_payment' => 'Ditolak',
                 'status_order' => 'Ditolak',
@@ -90,7 +115,7 @@ class OrderController extends Controller
             // Notify User
             $order->user->notify(new OrderStatusChanged($order, 'Maaf, pembayaran Anda ditolak.'));
 
-            return back()->with('success', 'Pembayaran dan Pesanan ditolak!');
+            return back()->with('success', 'Pembayaran dan Pesanan ditolak, stok dikembalikan!');
         }
 
         return back()->with('error', 'Aksi tidak valid');
@@ -107,8 +132,10 @@ class OrderController extends Controller
 
         // --- VALIDASI ALUR MAJU (FORWARD ONLY) ---
         // Kita beri bobot/rank untuk setiap status
+        // Kita beri bobot/rank untuk setiap status
         $statusRank = [
             'Pending' => 1,
+            'Menunggu Pembatalan' => 1, // Setara pending levelnya
             'Diproses' => 2,
             'Siap Dikirim' => 3,
             'Selesai' => 4,
@@ -118,8 +145,10 @@ class OrderController extends Controller
         $currentRank = $statusRank[$order->status_order] ?? 0;
         $newRank = $statusRank[$request->status_order] ?? 0;
 
-        // Aturan: Tidak boleh mundur (New Rank < Current Rank)
-        if ($newRank < $currentRank) {
+        // Aturan: Tidak boleh mundur (New Rank < Current Rank), KECUALI jika dari 'Menunggu Pembatalan' kembali ke 'Diproses' atau 'Pending'
+        $isRevertingCancel = ($order->status_order === 'Menunggu Pembatalan' && in_array($request->status_order, ['Diproses', 'Pending']));
+
+        if ($newRank < $currentRank && !$isRevertingCancel) {
             return back()->with('error', 'Pesanan tidak bisa diubah mundur');
         }
 
@@ -128,36 +157,22 @@ class OrderController extends Controller
         //pembayaran 
         if (
             in_array($request->status_order, ['Diproses', 'Siap Dikirim', 'Selesai']) &&
-            $order->status_payment !== 'Lunas'
+            $order->status_payment !== 'Lunas' &&
+            $order->payment_method !== 'cash' // Allow cash orders to proceed without being 'Lunas' first
         ) {
             return back()->with('error', 'Pesanan belum lunas, harap cek pembayaran terlebih dahulu!');
         }
 
-        // kurangi stok
-        if (
-            $request->status_order === 'Diproses' &&
-            !$order->stock_reduced
-        ) {
-            foreach ($order->items as $item) {
-                $product = $item->product;
+        // Stock reduction removed from Admin - Managed by Checkout
 
-                if ($product->stock < $item->quantity) {
-                    return back()->with(
-                        'error',
-                        "Stok {$product->name} tidak mencukupi!"
-                    );
-                }
-
-                $product->decrement('stock', $item->quantity);
-            }
-
-            $order->update([
-                'stock_reduced' => true,
-                'processed_at' => now(),
-            ]);
-        }
 
         //update status order
+        // Jika status diubah jadi Ditolak dan sebelumnya belum Ditolak, kembalikan stok
+        if ($request->status_order === 'Ditolak' && $order->status_order !== 'Ditolak') {
+            $this->restoreStock($order);
+            $order->status_payment = 'Ditolak'; // Opsional: Sinkronkan status pembayaran
+        }
+
         $order->status_order = $request->status_order;
         $order->save();
 
@@ -186,7 +201,7 @@ class OrderController extends Controller
 
     public function readyToShip(Order $order)
     {
-        if ($order->status_payment !== 'Lunas') {
+        if ($order->status_payment !== 'Lunas' && $order->payment_method !== 'cash') {
             return back()->with('error', 'Pesanan belum lunas');
         }
 
@@ -211,7 +226,16 @@ class OrderController extends Controller
         return back()->with('success', 'Pesanan siap dikirim');
     }
 
-
-
-
+    /**
+     * Helper: Kembalikan stok produk
+     */
+    private function restoreStock(Order $order)
+    {
+        foreach ($order->orderItems as $item) {
+            $product = $item->product;
+            if ($product) {
+                $product->increment('stock', $item->quantity);
+            }
+        }
+    }
 }

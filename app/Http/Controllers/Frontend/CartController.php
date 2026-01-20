@@ -62,7 +62,7 @@ class CartController extends Controller
 
         // Return JSON for AJAX requests
         if ($request->ajax() || $request->wantsJson()) {
-            $newCartCount = Cart::where('user_id', Auth::id())->count();
+            $newCartCount = Cart::where('user_id', Auth::id())->sum('quantity');
             return response()->json([
                 'success' => true,
                 'message' => 'Produk berhasil ditambahkan ke keranjang!',
@@ -71,6 +71,40 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+    }
+
+    // 🔄 Update quantity via AJAX
+    public function update(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:carts,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $cartItem = Cart::where('id', $request->id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $product = $cartItem->product;
+
+        // Check stock availability
+        if ($request->quantity > $product->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stok tidak mencukupi! Sisa stok: ' . $product->stock,
+                'current_quantity' => $cartItem->quantity // Return old quantity to revert UI
+            ], 400);
+        }
+
+        $cartItem->update([
+            'quantity' => $request->quantity
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Keranjang diperbarui',
+            'subtotal' => $cartItem->quantity * $product->price_sale
+        ]);
     }
 
     // ❌ Hapus item dari keranjang

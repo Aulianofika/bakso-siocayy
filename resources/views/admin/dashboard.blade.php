@@ -420,20 +420,31 @@
                             </select>
                         </div>
 
-                        <div class="d-grid gap-2 d-md-flex">
-                            <button type="submit" name="action" value="preview"
-                                class="btn btn-outline-primary rounded-pill fw-bold py-2 w-100">
-                                <i class="bi bi-eye me-2"></i>Tampilkan
-                            </button>
-                            <button type="submit" name="action" value="download"
-                                class="btn btn-primary rounded-pill fw-bold py-2 w-100">
-                                <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
-                            </button>
-                        </div>
-                    </form>
+                        <button type="button" onclick="submitExport('preview')"
+                            class="btn btn-outline-primary rounded-pill fw-bold py-2 w-100">
+                            <i class="bi bi-eye me-2"></i>Tampilkan
+                        </button>
+                        <button type="button" onclick="submitExport('download_pdf')"
+                            class="btn btn-danger rounded-pill fw-bold py-2 w-100">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+                        </button>
+                        <button type="button" onclick="submitExport('download_excel')"
+                            class="btn btn-success rounded-pill fw-bold py-2 w-100">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Excel
+                        </button>
                 </div>
+                <input type="hidden" name="action" id="exportAction" value="preview">
+
+                <script>
+                    function submitExport(action) {
+                        document.getElementById('exportAction').value = action;
+                        document.getElementById('exportForm').submit();
+                    }
+                </script>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 
     @push('scripts')

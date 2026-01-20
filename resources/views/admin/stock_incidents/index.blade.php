@@ -9,10 +9,10 @@
                 <p class="text-muted small mb-0">Kelola laporan barang rusak, hilang, atau retur.</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.stock-incidents.preview') }}"
-                    class="btn btn-white border shadow-sm rounded-pill fw-bold px-4 hover-scale text-dark">
-                    <i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Laporan PDF
-                </a>
+                <button type="button" class="btn btn-white border shadow-sm rounded-pill fw-bold px-4 hover-scale text-dark"
+                    data-bs-toggle="modal" data-bs-target="#exportIncidentModal">
+                    <i class="bi bi-printer me-2 text-danger"></i>Cetak Laporan
+                </button>
                 <a href="{{ route('admin.stock-incidents.create') }}"
                     class="btn btn-primary shadow-sm rounded-pill fw-bold px-4 hover-scale">
                     <i class="bi bi-plus-lg me-2"></i> Lapor Insiden
@@ -210,3 +210,38 @@
         }
     </style>
 @endsection
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportIncidentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Cetak Laporan Insiden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-grid gap-2">
+                    <a href="{{ route('admin.stock-incidents.preview') }}" target="_blank"
+                        class="btn btn-outline-primary rounded-pill fw-bold py-2">
+                        <i class="bi bi-eye me-2"></i>Tampilkan Preview
+                    </a>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ route('admin.stock-incidents.export') }}"
+                                class="btn btn-danger rounded-pill fw-bold py-2 w-100">
+                                <i class="bi bi-file-earmark-pdf me-2"></i>Unduh PDF
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('admin.stock-incidents.export', ['type' => 'excel']) }}"
+                                class="btn btn-success rounded-pill fw-bold py-2 w-100">
+                                <i class="bi bi-file-earmark-excel me-2"></i>Unduh Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

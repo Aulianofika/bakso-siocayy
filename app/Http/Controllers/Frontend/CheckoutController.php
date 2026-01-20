@@ -55,6 +55,13 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Silakan pilih produk yang ingin di-checkout, tidak boleh kosong!');
         }
 
+        // Validasi Stok Sebelum Menampilkan Halaman Checkout
+        foreach ($cartItems as $item) {
+            if ($item->quantity > $item->product->stock) {
+                return redirect()->route('cart.index')->with('error', 'Beberapa produk stoknya habis atau tidak mencukupi. Silakan cek kembali keranjang Anda.');
+            }
+        }
+
         $total = $cartItems->sum(fn($item) => $item->product->price_sale * $item->quantity);
 
         return view('frontend.checkout', compact('cartItems', 'total'));
@@ -69,6 +76,9 @@ class CheckoutController extends Controller
             'nama_penerima' => 'required|string|max:255',
             'no_telepon' => 'required|string|max:20',
             'alamat' => 'required|string',
+            'kecamatan' => 'required|string',
+            'kabupaten' => 'required|string',
+            'kode_pos' => 'required|string',
             'catatan' => 'nullable|string',
             'payment_method' => 'required|in:cash,transfer',
             'bukti_transfer' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -125,8 +135,27 @@ class CheckoutController extends Controller
         $status_order = 'Pending';
         // Status pembayaran: 'Menunggu Verifikasi', 'Lunas' (sesuai enum di database)
         $status_payment = 'Menunggu Verifikasi';
+
+        if ($request->payment_method === 'cash') {
+            $status_order = 'Pending';
+            $status_payment = 'Belum Bayar';
+        }
+
         $amount_paid = 0;
 
+
+
+        // ======================
+        // VALIDASI STOK AKHIR (FINAL CHECK)
+        // ======================
+        foreach ($cartItems as $item) {
+            // Refresh data produk untuk mendapatkan stok terbaru
+            $product = \App\Models\Product::find($item->product_id);
+
+            if (!$product || $item->quantity > $product->stock) {
+                return redirect()->route('cart.index')->with('error', 'Gagal memproses pesanan! Stok untuk produk "' . ($product->name ?? 'Unknown') . '" telah habis atau tidak mencukupi saat Anda mencoba checkout.');
+            }
+        }
 
 
         // ======================
@@ -142,12 +171,13 @@ class CheckoutController extends Controller
             'amount_paid' => $amount_paid,
             'nama_penerima' => $request->nama_penerima,
             'telepon' => $request->no_telepon,
-            'alamat_lengkap' => $request->alamat,
+            'alamat_lengkap' => "{$request->alamat}, Kec. {$request->kecamatan}, {$request->kabupaten}, {$request->kode_pos}",
             'catatan' => $request->catatan,
             'rekening_tujuan' => $request->payment_method === 'transfer'
                 ? 'BANK BRI - 1234 5678 9012 a.n Bakso Siocay'
                 : null,
             'bukti_transfer' => $buktiPath,
+            'stock_reduced' => true,
         ]);
 
         // ======================

@@ -494,10 +494,10 @@
     <!-- SIDEBAR -->
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-brand">
-        <div class="brand-logo">BS</div>
-        <div class="brand-text">
-          <h1>Admin</h1>
-          <span>Bakso Siocay</span>
+        <img src="{{ asset('images/logo-siocay.png') }}" alt="Bakso Siocay" class="rounded-circle shadow-sm"
+          style="height: 60px; object-fit: contain; border: 2px solid rgba(0,0,0,0.05);">
+        <div class="brand-text ms-2">
+          <h1 class="mb-0">Admin</h1>
         </div>
       </div>
 
@@ -640,8 +640,8 @@
 
         <div class="topbar-right">
           <!-- Notification Bell -->
-          <a href="{{ route('admin.orders.index', ['status_order' => 'Pending']) }}" class="notify-btn"
-            title="Pesanan Baru">
+          <a href="{{ route('admin.orders.index', ['status_order' => 'attention']) }}" class="notify-btn"
+            title="Perlu Tindakan">
             <i class="bi bi-bell-fill"></i>
             @if(isset($newOrdersCount) && $newOrdersCount > 0)
               <span

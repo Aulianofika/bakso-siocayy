@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StockIncident;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StockIncidentController extends Controller
 {
@@ -32,10 +33,17 @@ class StockIncidentController extends Controller
         return view('admin.stock_incidents.preview', compact('incidents'));
     }
 
-    public function export()
+    public function export(Request $request)
     {
         $incidents = StockIncident::with('product')->latest()->get();
-        $pdf = \PDF::loadView('admin.stock_incidents.pdf', compact('incidents'));
+
+        if ($request->input('type') === 'excel') {
+            return response()->streamDownload(function () use ($incidents) {
+                echo view('admin.stock_incidents.excel', compact('incidents'))->render();
+            }, 'Laporan_Insiden_Stok_' . date('Y-m-d') . '.xls');
+        }
+
+        $pdf = Pdf::loadView('admin.stock_incidents.pdf', compact('incidents'));
         return $pdf->download('Laporan_Insiden_Stok_' . date('Y-m-d') . '.pdf');
     }
 

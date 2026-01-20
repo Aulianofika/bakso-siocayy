@@ -27,6 +27,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Beranda dan Menu
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index']);
+Route::get('/tentang-kami', [HomeController::class, 'about'])->name('about');
 Route::get('/menu', [HomeController::class, 'menu'])->name('menu');
 Route::get('/produk/{id}', [HomeController::class, 'show'])->name('produk.show');
 
@@ -47,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/received', [FronOrderController::class, 'received'])
         ->name('orders.received');
+    Route::patch('/orders/{id}/cancel', [FronOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{id}/invoice', [FronOrderController::class, 'invoice'])->name('orders.invoice');
+    Route::patch('/orders/{id}/cancel', [FronOrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('/riwayat', [RiwayatController::class, 'index'])->name('frontend.riwayat');
 
 });

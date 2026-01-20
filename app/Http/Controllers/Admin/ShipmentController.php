@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShipmentController extends Controller
 {
@@ -189,11 +190,17 @@ class ShipmentController extends Controller
     /**
      * Export PDF
      */
-    public function export()
+    public function export(Request $request)
     {
         $shipments = Shipment::with('order.user')->latest()->get();
 
-        $pdf = \PDF::loadView('admin.shipments.pdf', compact('shipments'));
+        if ($request->input('type') === 'excel') {
+            return response()->streamDownload(function () use ($shipments) {
+                echo view('admin.shipments.excel', compact('shipments'))->render();
+            }, 'Laporan_Pengiriman_' . date('Y-m-d') . '.xls');
+        }
+
+        $pdf = Pdf::loadView('admin.shipments.pdf', compact('shipments'));
         // Set paper size & orientation
         $pdf->setPaper('a4', 'landscape');
 

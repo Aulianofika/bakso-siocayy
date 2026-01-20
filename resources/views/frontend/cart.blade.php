@@ -33,6 +33,15 @@
             </div>
         @else
             <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                @if($cartItems->contains(fn($item) => $item->product->stock <= 0))
+                    <div class="alert alert-danger m-3 mb-0 d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                        <div>
+                            <strong>Stok Habis!</strong> Beberapa produk di keranjangmu stoknya habis dan tidak dapat dipilih untuk
+                            checkout.
+                        </div>
+                    </div>
+                @endif
                 <form action="{{ route('checkout.index') }}" method="GET" id="cartForm">
                     @csrf
 
@@ -55,8 +64,13 @@
 
                                     {{-- Checkbox --}}
                                     <div class="col-2 col-md-1 text-center">
-                                        <input type="checkbox" name="selected_items[]" value="{{ $item->id }}"
-                                            class="form-check-input item-checkbox fs-5" style="cursor: pointer;">
+                                        @if($item->product->stock > 0)
+                                            <input type="checkbox" name="selected_items[]" value="{{ $item->id }}"
+                                                class="form-check-input item-checkbox fs-5" style="cursor: pointer;">
+                                        @else
+                                            <input type="checkbox" disabled class="form-check-input fs-5 bg-secondary border-secondary"
+                                                title="Stok Habis">
+                                        @endif
                                     </div>
 
                                     {{-- Image --}}
@@ -72,6 +86,16 @@
                                         <span class="badge bg-light text-secondary border rounded-pill mb-2">
                                             {{ $item->product->category->name ?? 'Menu' }}
                                         </span>
+
+                                        {{-- Stock Info / Warning codes --}}
+                                        @if($item->product->stock == 0)
+                                            <br><span class="badge bg-danger">Stok Habis</span>
+                                        @elseif($item->quantity > $item->product->stock)
+                                            <br><small class="text-danger fw-bold">
+                                                <i class="bi bi-exclamation-circle"></i> Stok sisa: {{ $item->product->stock }}
+                                            </small>
+                                        @endif
+
                                         {{-- Mobile Price Info --}}
                                         <div class="d-md-none">
                                             <small class="text-muted">Harga: </small>
@@ -209,29 +233,80 @@
                 btn.addEventListener('click', function () {
                     const row = btn.closest('.cart-row');
                     const qtyInput = row.querySelector('.quantity-text');
+                    const cartId = row.dataset.id;
                     const price = parseInt(row.querySelector('.price').dataset.price);
                     let qty = parseInt(qtyInput.value);
 
                     if (btn.classList.contains('increase')) qty++;
                     if (btn.classList.contains('decrease') && qty > 1) qty--;
 
-                    // Update UI
+                    // Simpan quantity lama untuk rollback jika error
+                    const oldQty = qtyInput.dataset.quantity;
+
+                    // Update UI Sementara (Optimistic UI)
                     qtyInput.value = qty;
-                    qtyInput.dataset.quantity = qty; // Update data attribute if needed
+                    // qtyInput.dataset.quantity = qty; // Jangan update dataset dulu sebelum sukses
 
-                    // Update Subtotal
-                    const subtotal = price * qty;
-                    row.querySelector('.subtotal').textContent = formatRupiah(subtotal);
-
-                    // Update Grand Total
-                    updateGrandTotal();
-
-                    // Optional: You might want to send an AJAX request here to update the cart in the database continuously
+                    // Debounce / Kirim Request AJAX
+                    updateCartQuantity(cartId, qty, row, qtyInput, price, oldQty);
                 });
             });
 
+            async function updateCartQuantity(cartId, qty, row, qtyInput, price, oldQty) {
+                try {
+                    const response = await fetch('{{ route('cart.update') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            id: cartId,
+                            quantity: qty
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update dataset quantity jika sukses
+                        qtyInput.dataset.quantity = qty;
+
+                        // Update Subtotal dengan data dari server (lebih akurat) atau hitung manual
+                        row.querySelector('.subtotal').textContent = formatRupiah(data.subtotal);
+                        updateGrandTotal();
+                    } else {
+                        // Revert jika gagal (misal stok habis)
+                        alert(data.message);
+                        qtyInput.value = oldQty;
+                    }
+                } catch (error) {
+                    console.error('Error updating cart:', error);
+                    alert('Terjadi kesalahan saat memperbarui keranjang.');
+                    qtyInput.value = oldQty;
+                }
+            }
+
             // Initial calcs
             updateGrandTotal();
+
+            // Checkout Validation
+            const cartForm = document.getElementById('cartForm');
+            cartForm.addEventListener('submit', function (e) {
+                const selected = document.querySelectorAll('.item-checkbox:checked');
+                if (selected.length === 0) {
+                    e.preventDefault();
+
+                    // Cek apakah ada item yang stoknya habis (checkbox disabled)
+                    const hasOutOfStock = document.querySelectorAll('input[type="checkbox"][disabled]').length > 0;
+
+                    if (hasOutOfStock) {
+                        alert('Maaf, stok produk habis. Kamu tidak bisa melakukan checkout untuk produk ini.');
+                    } else {
+                        alert('Silakan pilih minimal satu produk untuk checkout!');
+                    }
+                }
+            });
         });
     </script>
 

@@ -18,7 +18,7 @@ class RoleMiddleware
             return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
         return $next($request);
-             
-        
-    } 
+
+
+    }
 }

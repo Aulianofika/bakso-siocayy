@@ -50,9 +50,76 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">
-                                        {{ $category->products_count }} item
-                                    </span>
+                                    <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-secondary"
+                                        data-bs-toggle="modal" data-bs-target="#categoryModal{{ $category->id }}">
+                                        {{ $category->products_count }} item <i class="bi bi-eye ms-1"></i>
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="categoryModal{{ $category->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                                                <div class="modal-header border-0 bg-success text-white p-4">
+                                                    <div>
+                                                        <h5 class="modal-title fw-bold mb-0 text-white">Produk Kategori: {{ $category->name }}</h5>
+                                                        <small class="text-white-50">{{ $category->products_count }} Produk Tersedia</small>
+                                                    </div>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body p-0">
+                                                    @if($category->products->isEmpty())
+                                                        <div class="text-center py-5">
+                                                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="80" class="mb-3 opacity-50">
+                                                            <p class="text-muted fw-medium">Belum ada produk dalam kategori ini.</p>
+                                                        </div>
+                                                    @else
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover align-middle mb-0">
+                                                                <thead class="bg-light">
+                                                                    <tr>
+                                                                        <th class="ps-4">Foto</th>
+                                                                        <th>Nama Produk</th>
+                                                                        <th>Stok</th>
+                                                                        <th class="text-end pe-4">Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach($category->products as $product)
+                                                                        <tr>
+                                                                            <td class="ps-4" width="80">
+                                                                                 @if($product->image)
+                                                                                    <img src="{{ asset('images/products/' . $product->image) }}" class="rounded-3 shadow-sm object-fit-cover" width="50" height="50">
+                                                                                @else
+                                                                                    <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-muted small" style="width: 50px; height: 50px;">
+                                                                                        <i class="bi bi-image"></i>
+                                                                                    </div>
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                <div class="fw-bold text-dark">{{ $product->name }}</div>
+                                                                                <div class="small text-muted text-truncate" style="max-width: 200px;">{{ $product->description }}</div>
+                                                                            </td>
+                                                                            <td>{{ $product->stock }}</td>
+                                                                            <td class="text-end pe-4">
+                                                                                @if($product->stock > 0)
+                                                                                    <span class="badge bg-success-subtle text-success rounded-pill">Tersedia</span>
+                                                                                @else
+                                                                                    <span class="badge bg-danger-subtle text-danger rounded-pill">Habis</span>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="modal-footer border-0 bg-light p-3">
+                                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group gap-1">

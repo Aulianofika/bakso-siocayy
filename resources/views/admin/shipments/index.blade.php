@@ -23,10 +23,10 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h3 class="fw-bold text-dark mb-0">Manajemen Pengiriman</h3>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.shipments.preview') }}"
-                    class="btn btn-white border shadow-sm rounded-pill fw-bold px-4 hover-scale text-dark">
-                    <i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Laporan PDF
-                </a>
+            <button type="button" class="btn btn-white border shadow-sm rounded-pill fw-bold px-4 hover-scale text-dark"
+                data-bs-toggle="modal" data-bs-target="#exportShipmentModal">
+                <i class="bi bi-printer me-2 text-danger"></i>Cetak Laporan
+            </button>
             <a href="{{ route('admin.shipments.create') }}" class="btn btn-primary rounded-pill shadow-sm fw-bold px-4">
                 <i class="bi bi-plus-lg me-2"></i>Buat Pengiriman
             </a>
@@ -166,4 +166,39 @@
             </div>
         </div>
     </div>
-@endsection
+    @endsection
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportShipmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Cetak Laporan Pengiriman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('admin.shipments.preview') }}" target="_blank"
+                            class="btn btn-outline-primary rounded-pill fw-bold py-2">
+                            <i class="bi bi-eye me-2"></i>Tampilkan Preview
+                        </a>
+                        
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a href="{{ route('admin.shipments.export') }}" 
+                                    class="btn btn-danger rounded-pill fw-bold py-2 w-100">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>Unduh PDF
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ route('admin.shipments.export', ['type' => 'excel']) }}" 
+                                    class="btn btn-success rounded-pill fw-bold py-2 w-100">
+                                    <i class="bi bi-file-earmark-excel me-2"></i>Unduh Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

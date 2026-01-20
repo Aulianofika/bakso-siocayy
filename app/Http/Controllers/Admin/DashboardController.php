@@ -205,6 +205,12 @@ class DashboardController extends Controller
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports.pdf', compact('orders', 'totalRevenue', 'title', 'period', 'type'));
 
+        if ($request->input('action') === 'download_excel') {
+            return response()->streamDownload(function () use ($orders, $totalRevenue, $title, $period) {
+                echo view('admin.reports.excel', compact('orders', 'totalRevenue', 'title', 'period'))->render();
+            }, 'laporan-pendapatan-' . $type . '-' . time() . '.xls');
+        }
+
         if ($request->input('action') === 'preview') {
             return $pdf->stream('laporan-pendapatan-' . $type . '-' . time() . '.pdf');
         }

@@ -435,15 +435,16 @@
   <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
     <div class="container">
       <a class="navbar-brand" href="{{ url('/home') }}">
-        <i class="bi bi-cup-hot-fill me-1"></i> Siocay
+        <img src="{{ asset('images/logo-siocay.png') }}" alt="Siocay" class="rounded-circle shadow-sm"
+          style="height: 55px; object-fit: contain; border: 2px solid rgba(255,255,255,0.1);">
       </a>
 
       {{-- Mobile Person Icon (Visible on LG and below) --}}
       <div class="d-flex align-items-center gap-3 ms-auto me-3 d-lg-none">
-        
+
         {{-- Mobile Cart Icon --}}
-        <a href="{{ auth()->check() ? route('cart.index') : route('login') . '?alert=login_required' }}" 
-           class="nav-link position-relative p-0" title="Keranjang">
+        <a href="{{ auth()->check() ? route('cart.index') : route('login') . '?alert=login_required' }}"
+          class="nav-link position-relative p-0" title="Keranjang">
           <i class="bi bi-cart3 fs-4 text-white-50"></i>
           @auth
             @if(isset($cartCount) && $cartCount > 0)
@@ -453,8 +454,8 @@
         </a>
 
         @auth
-          <button class="person-icon-btn nav-link position-relative open-sidebar-btn p-0 border-0 bg-transparent" type="button"
-            title="Menu Pengguna">
+          <button class="person-icon-btn nav-link position-relative open-sidebar-btn p-0 border-0 bg-transparent"
+            type="button" title="Menu Pengguna">
             <i class="bi bi-person-fill fs-4 text-white-50"></i> {{-- Adjusted size/color for mobile header --}}
             @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -477,11 +478,12 @@
         <ul class="navbar-nav ms-auto align-items-center">
           <li class="nav-item"><a href="{{ url('/home') }}" class="nav-link">Beranda</a></li>
           <li class="nav-item"><a href="{{ url('/menu') }}" class="nav-link">Produk</a></li>
+          <li class="nav-item"><a href="{{ route('about') }}" class="nav-link">Tentang Kami</a></li>
 
           {{-- Icon Keranjang dengan Badge (Desktop Only) --}}
           <li class="nav-item d-none d-lg-block">
-            <a href="{{ auth()->check() ? route('cart.index') : route('login') . '?alert=login_required' }}" 
-               class="nav-link position-relative">
+            <a href="{{ auth()->check() ? route('cart.index') : route('login') . '?alert=login_required' }}"
+              class="nav-link position-relative">
               <i class="bi bi-cart3" style="font-size: 1.2rem;"></i>
               @auth
                 @if(isset($cartCount) && $cartCount > 0)
@@ -531,12 +533,12 @@
         {{-- Brand Column --}}
         <div class="col-lg-4 mb-4 mb-lg-0">
           <h4 class="fw-bold text-white mb-4 d-flex align-items-center gap-2">
-            <i class="bi bi-cup-hot-fill"></i>  Siocay
+            <i class="bi bi-cup-hot-fill"></i> Siocay
           </h4>
           <p class="text-white small mb-4 opacity-75" style="line-height: 1.8; max-width: 350px;">
             Menyajikan bakso dan kopi pilihan dengan suasana yang hangat. Temukan rasa favoritmu di sini.
           </p>
-          <a href="#"
+          <a href="{{ route('about') }}"
             class="text-white text-decoration-none small fw-bold hover-scale d-inline-block border-bottom border-white pb-1">
             Baca Selengkapnya <i class="bi bi-arrow-right ms-1"></i>
           </a>
@@ -553,7 +555,7 @@
             <li><a href="{{ route('menu', ['category' => 'Kopi']) }}"
                 class="text-reset text-decoration-none hover-text-white transition-opacity">Kopi </a></li>
             <li><a href="{{ route('menu') }}"
-                class="text-reset text-decoration-none hover-text-white transition-opacity">Menu Spesial</a></li>
+                class="text-reset text-decoration-none hover-text-white transition-opacity">Menu</a></li>
           </ul>
         </div>
 
@@ -577,7 +579,7 @@
               class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Bakso</a>
             <a href="#"
               class="btn btn-outline-light btn-sm small rounded-1 px-3 py-1 hover-tag border-opacity-25 opacity-75">Aroma
-              </a>
+            </a>
           </div>
         </div>
 
@@ -609,7 +611,8 @@
               style="width: 38px; height: 38px;">
               <i class="bi bi-facebook"></i>
             </a>
-            <a href="#"
+            <a href="https://www.instagram.com/siocayfood?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+              target="_blank"
               class="btn btn-outline-light border-opacity-25 rounded-circle p-0 d-flex align-items-center justify-content-center hover-icon-white transition-all text-white"
               style="width: 38px; height: 38px;">
               <i class="bi bi-instagram"></i>
@@ -729,144 +732,152 @@
     <script>
       // Sidebar Toggle Script
       const openSidebarBtns = document.querySelectorAll('.open-sidebar-btn');
-      const closeSidebarBtn = document.getElementById('closeSidebarBtn'); // Assuming this exists
+      const closeSidebarBtn = document.getElementById('closeSidebarBtn');
       const sidebarOverlay = document.getElementById('sidebarOverlay');
       const userSidebar = document.getElementById('userSidebar');
 
       function openSidebar() {
         sidebarOverlay.classList.add('active');
         userSidebar.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent body scroll
+        document.body.style.overflow = 'hidden';
       }
 
       function closeSidebar() {
         sidebarOverlay.classList.remove('active');
         userSidebar.classList.remove('active');
-        document.body.style.overflow = ''; // Restore body scroll
+        document.body.style.overflow = '';
       }
 
       openSidebarBtns.forEach(btn => {
         btn.addEventListener('click', openSidebar);
       });
-      
-      if(closeSidebarBtn) {
+
+      if (closeSidebarBtn) {
         closeSidebarBtn.addEventListener('click', closeSidebar);
       }
-      sidebarOverlay.addEventListener('click', closeSidebar);
+
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+      }
 
       // Close sidebar on ESC key
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && userSidebar.classList.contains('active')) {
+        if (e.key === 'Escape' && userSidebar && userSidebar.classList.contains('active')) {
           closeSidebar();
         }
       });
     </script>
   @endauth
-  
+
   {{-- Toast Notification Container --}}
   <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060;">
-    <div id="cartToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="cartToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+      aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body d-flex align-items-center gap-2">
           <i class="bi bi-check-circle-fill"></i>
           <span id="toastMessage">Produk berhasil ditambahkan!</span>
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cartToastEl = document.getElementById('cartToast');
-        const cartToast = new bootstrap.Toast(cartToastEl);
-        const toastMessage = document.getElementById('toastMessage');
+    document.addEventListener('DOMContentLoaded', function () {
+      const cartToastEl = document.getElementById('cartToast');
+      const cartToast = new bootstrap.Toast(cartToastEl);
+      const toastMessage = document.getElementById('toastMessage');
 
-        @if(session('success'))
-            toastMessage.textContent = "{{ session('success') }}";
-            cartToast.show();
-        @endif
+      @if(session('success'))       toastMessage.textContent = "{{ session('success') }}"; cartToast.show();
+      @endif
 
-        // Delegated event listener for add to cart forms
-        document.body.addEventListener('submit', function(e) {
-            if (e.target.matches('form[action*="/keranjang/tambah"]')) {
-                e.preventDefault();
-                const form = e.target;
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalBtnContent = submitBtn.innerHTML;
+      // Delegated event listener for add to cart forms
+      document.body.addEventListener('submit', function (e) {
+        if (e.target.matches('form[action*="/keranjang/tambah"]')) {
+          // If clicking "Beli Langsung", let it submit normally (no AJAX)
+          if (e.submitter && e.submitter.value === 'checkout') {
+            return;
+          }
+          e.preventDefault();
+          const form = e.target;
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const originalBtnContent = submitBtn.innerHTML;
 
-                // Loading state
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+          // Loading state
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
 
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    body: new FormData(form)
-                })
-                .then(response => {
-                    // Handle Unauthenticated (401) or Session Expired (419)
-                    if (response.status === 401 || response.status === 419) {
-                        window.location.href = "{{ route('login') }}?alert=login_required";
-                        return;
-                    }
-                    
-                    // Handle if fetch followed a redirect to login page (which returns HTML)
-                    if (response.redirected && response.url.includes('/login')) {
-                         let loginUrl = new URL(response.url);
-                         loginUrl.searchParams.set('alert', 'login_required');
-                         window.location.href = loginUrl.toString();
-                         return;
-                    }
+          fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json',
+            },
+            body: new FormData(form)
+          })
+            .then(response => {
+              // Handle Unauthenticated (401) or Session Expired (419)
+              if (response.status === 401 || response.status === 419) {
+                window.location.href = "{{ route('login') }}?alert=login_required";
+                return;
+              }
 
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data) return; // redirected
+              // Handle if fetch followed a redirect to login page (which returns HTML)
+              if (response.redirected && response.url.includes('/login')) {
+                let loginUrl = new URL(response.url);
+                loginUrl.searchParams.set('alert', 'login_required');
+                window.location.href = loginUrl.toString();
+                return;
+              }
 
-                    if (data.success) {
-                        // Update toast message
-                        toastMessage.textContent = data.message;
-                        cartToast.show();
+              return response.json();
+            })
+            .then(data => {
+              if (!data) return; // redirected
 
-                        // Update all cart badges
-                        const badges = document.querySelectorAll('.cart-badge');
-                        badges.forEach(badge => {
-                            badge.textContent = data.cart_count;
-                            badge.classList.remove('d-none'); // Ensure it's visible
-                        });
+              if (data.success) {
+                // Update toast message
+                toastMessage.textContent = data.message;
+                cartToast.show();
 
-                        // specific handling for empty cart
-                        if (badges.length === 0 && data.cart_count > 0) {
-                            const cartIcons = document.querySelectorAll('.bi-cart3');
-                            cartIcons.forEach(icon => {
-                                const newBadge = document.createElement('span');
-                                newBadge.className = 'cart-badge';
-                                newBadge.textContent = data.cart_count;
-                                icon.parentNode.appendChild(newBadge);
-                            });
-                        }
-                    } else if (data.error) {
-                         alert(data.error); // Fallback for errors
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                })
-                .finally(() => {
-                    // Restore button
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnContent;
+                // Update all cart badges
+                const badges = document.querySelectorAll('.cart-badge');
+                badges.forEach(badge => {
+                  badge.textContent = data.cart_count;
+                  badge.classList.remove('d-none'); // Ensure it's visible
                 });
-            }
-        });
+
+                // specific handling for empty cart
+                if (badges.length === 0 && data.cart_count > 0) {
+                  const cartIcons = document.querySelectorAll('.bi-cart3');
+                  cartIcons.forEach(icon => {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'cart-badge';
+                    newBadge.textContent = data.cart_count;
+                    icon.parentNode.appendChild(newBadge);
+                  });
+                }
+              } else if (data.error) {
+                alert(data.error); // Fallback for errors
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            })
+            .finally(() => {
+              // Restore button
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnContent;
+            });
+        }
+      });
     });
   </script>
   {{-- Floating WhatsApp Button --}}
-  <a href="https://wa.me/6285274480014?text=Halo%20kak%2C%20saya%20ingin%20memesan%20produk%20Siocay" target="_blank" class="whatsapp-float shadow-lg" title="Chat via WhatsApp">
+  <a href="https://wa.me/6285274480014?text=Halo%20kak%2C%20saya%20ingin%20memesan%20produk%20Siocay" target="_blank"
+    class="whatsapp-float shadow-lg" title="Chat via WhatsApp">
     <i class="bi bi-whatsapp"></i>
   </a>
 

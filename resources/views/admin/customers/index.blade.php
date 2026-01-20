@@ -32,7 +32,6 @@
                         <tr>
                             <th class="ps-4 py-3" width="5%">No</th>
                             <th class="py-3">Pelanggan</th>
-                            <th class="py-3">Kontak</th>
                             <th class="py-3">Total Order</th>
                             <th class="py-3">Bergabung</th>
                             <th class="text-end pe-4 py-3">Aksi</th>
@@ -54,13 +53,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    @if($customer->phone)
-                                        <span class="text-dark small">{{ $customer->phone }}</span>
-                                    @else
-                                        <span class="text-muted small fst-italic">-</span>
-                                    @endif
-                                </td>
+                                
                                 <td>
                                     <span class="badge bg-light text-dark border">{{ $customer->orders_count ?? 0 }}
                                         Transaksi</span>

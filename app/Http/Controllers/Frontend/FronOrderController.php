@@ -42,5 +42,28 @@ class FronOrderController extends Controller
         return back()->with('success', 'Pesanan berhasil diterima.');
     }
 
+    /**
+     * Customer request cancel
+     */
+    public function cancel(Request $request, $id)
+    {
+        $order = Order::where('user_id', auth()->id())->where('id', $id)->firstOrFail();
 
+        if (in_array($order->status_order, ['Pending', 'Diproses'])) {
+            $order->update(['status_order' => 'Menunggu Pembatalan']);
+            return back()->with('success', 'Permintaan pembatalan berhasil dikirim. Menunggu persetujuan admin.');
+        }
+
+        return back()->with('error', 'Status pesanan tidak valid untuk pembatalan.');
+    }
+
+    public function invoice($id)
+    {
+        $order = Order::with(['orderItems.product', 'user'])
+            ->where('user_id', auth()->id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return view('frontend.invoice', compact('order'));
+    }
 }

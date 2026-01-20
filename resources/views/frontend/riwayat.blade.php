@@ -182,17 +182,64 @@
                                                 </form>
                                             @endif
 
-                                            @if ($order->payment_method === 'transfer' && $order->bukti_transfer)
-                                                <button class="btn btn-outline-secondary btn-sm fw-medium w-100 py-2"
+                                            @if($order->status_order === 'Selesai' || $order->status_order === 'Diterima')
+                                                <div class="d-grid gap-2">
+                                                    <div class="bg-success-subtle rounded-pill p-2 text-center border border-success">
+                                                        <span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i> Transaksi Selesai</span>
+                                                    </div>
+                                                    
+                                                    <div class="row g-2">
+                                                        @if ($order->payment_method === 'transfer' && $order->bukti_transfer)
+                                                            <div class="col-6">
+                                                                <button class="btn btn-outline-secondary btn-sm fw-bold w-100 py-2 rounded-pill small hover-scale"
+                                                                    data-bs-toggle="modal" data-bs-target="#buktiModal{{ $order->id }}">
+                                                                    <i class="bi bi-image me-1"></i> Bukti Bayar
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <a href="{{ route('orders.invoice', $order->id) }}" target="_blank"
+                                                                    class="btn btn-white border shadow-sm w-100 py-2 rounded-pill fw-bold text-dark small hover-scale">
+                                                                    <i class="bi bi-receipt me-1"></i> Struk
+                                                                </a>
+                                                            </div>
+                                                        @else
+                                                            <div class="col-12">
+                                                                <a href="{{ route('orders.invoice', $order->id) }}" target="_blank"
+                                                                    class="btn btn-white border shadow-sm w-100 py-2 rounded-pill fw-bold text-dark small hover-scale">
+                                                                    <i class="bi bi-receipt me-1"></i> Lihat Struk Belanja
+                                                                </a>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @elseif ($order->payment_method === 'transfer' && $order->bukti_transfer)
+                                                 <button class="btn btn-outline-secondary btn-sm fw-medium w-100 py-2 rounded-pill"
                                                     data-bs-toggle="modal" data-bs-target="#buktiModal{{ $order->id }}">
                                                     <i class="bi bi-receipt me-2"></i>Lihat Bukti Bayar
                                                 </button>
                                             @endif
 
-                                            @if($order->status_order === 'Selesai' || $order->status_order === 'Diterima')
-                                                <button class="btn btn-light text-success fw-bold w-100 py-2" disabled>
-                                                    <i class="bi bi-check-circle-fill me-2"></i>Transaksi Selesai
+                                            @if(in_array($order->status_order, ['Pending', 'Diproses']))
+                                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST" class="mt-2">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button onclick="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')"
+                                                        class="btn btn-outline-danger w-100 fw-bold py-2">
+                                                        <i class="bi bi-x-circle me-2"></i>Batalkan Pesanan
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            
+                                            @if($order->status_order === 'Menunggu Pembatalan')
+                                                 <button class="btn btn-secondary w-100 fw-bold py-2" disabled>
+                                                    <i class="bi bi-hourglass-split me-2"></i>Menunggu Persetujuan
                                                 </button>
+                                            @endif
+
+                                            @if($order->status_order === 'Ditolak')
+                                                <div class="alert alert-danger text-center small py-2 mt-2 mb-0 fw-bold">
+                                                    <i class="bi bi-x-circle me-1"></i> Pesanan Anda sudah dibatalkan
+                                                </div>
                                             @endif
                                         </div>
                                     </div>

@@ -13,10 +13,10 @@ class AdminNotificationComposer
     public function compose(View $view): void
     {
         // Hitung pesanan pending (notifikasi)
-        $newOrdersCount = Order::where('status_order', 'Pending')
+        $newOrdersCount = Order::whereIn('status_order', ['Pending', 'Menunggu Pembatalan'])
             ->whereDate('created_at', '>=', now()->subDays(7))
             ->count();
-        
+
         $view->with('newOrdersCount', $newOrdersCount);
     }
 }

@@ -3,11 +3,24 @@
 @section('title', 'Manajemen Produk')
 
 @section('content')
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 gap-3">
         <h3 class="mb-0 text-gray-800 fw-bold">Manajemen Produk</h3>
-        <a href="{{ route('admin.products.create') }}" class="btn btn-primary d-none d-sm-inline-block shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Produk Baru
-        </a>
+
+        <div class="d-flex gap-2">
+            <form action="{{ route('admin.products.index') }}" method="GET" class="d-flex">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control border-0" placeholder="Cari produk..."
+                        value="{{ request('search') }}">
+                    <button class="btn btn-white bg-white border-0 text-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <a href="{{ route('admin.products.create') }}" class="btn btn-primary d-none d-sm-inline-block shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Tambah Produk
+            </a>
+        </div>
     </div>
 
     {{-- Pesan sukses --}}
